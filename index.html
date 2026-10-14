@@ -12,6 +12,7 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Bandhu2026</title>
+<meta name="color-scheme" content="only light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Baloo+2:wght@600;700;800&display=swap">
 <style>
@@ -21,7 +22,7 @@
   --gold:#f2c94c; --gold-d:#d99a22; --sash:#2f6a3f; --earth:#b08c63; --cream:#fbf6ea; --red:#b8432f;
   --display:"Permanent Marker","Marker Felt","Comic Sans MS",cursive;
   --ui:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
-  color-scheme:light;
+  color-scheme:only light;
 }
 [hidden]{display:none!important}
 html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var(--ink);font-family:var(--ui);overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
@@ -30,7 +31,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 .badge{display:flex;align-items:center;gap:6px}
 .hex{width:42px;height:46px;background:var(--ink);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:grid;place-items:center}
 .hex svg{width:30px;height:30px}
-.num{font-weight:800;font-size:28px;line-height:1;color:var(--cream);-webkit-text-stroke:6px var(--ink);paint-order:stroke fill;font-variant-numeric:tabular-nums}
+.num{font-weight:800;font-size:28px;line-height:1;color:#fff;text-shadow:3.0px 0.0px 0 var(--ink),-3.0px 0.0px 0 var(--ink),0.0px 3.0px 0 var(--ink),0.0px -3.0px 0 var(--ink),2.1px 2.1px 0 var(--ink),-2.1px 2.1px 0 var(--ink),2.1px -2.1px 0 var(--ink),-2.1px -2.1px 0 var(--ink),0 4px 0 var(--ink);font-variant-numeric:tabular-nums}
 #dist{font-size:24px}
 .left{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
 .right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
@@ -60,7 +61,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 .iconbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
 .iconbtn:focus-visible,.btn:focus-visible{outline:3px solid var(--gold-d);outline-offset:3px}
 #hint{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);transform:translateX(-50%);background:var(--ink);color:var(--cream);font-weight:700;font-size:15px;padding:8px 14px;border-radius:999px;white-space:nowrap;pointer-events:none;transition:opacity .4s}
-#banner{position:fixed;left:50%;top:30%;transform:translate(-50%,-50%) scale(.8);font:800 clamp(24px,7.5vw,40px)/1.05 var(--ui);color:var(--gold);-webkit-text-stroke:8px var(--ink);paint-order:stroke fill;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;text-align:center;width:92vw}
+#banner{position:fixed;left:50%;top:30%;transform:translate(-50%,-50%) scale(.8);font:800 clamp(24px,7.5vw,40px)/1.05 var(--ui);color:var(--gold);text-shadow:4.0px 0.0px 0 var(--ink),-4.0px 0.0px 0 var(--ink),0.0px 4.0px 0 var(--ink),0.0px -4.0px 0 var(--ink),2.8px 2.8px 0 var(--ink),-2.8px 2.8px 0 var(--ink),2.8px -2.8px 0 var(--ink),-2.8px -2.8px 0 var(--ink),0 5px 0 var(--ink);pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;text-align:center;width:92vw}
 #banner.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
 #toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translate(-50%,-12px);background:var(--sash);color:#fff;border:3px solid var(--ink);border-radius:14px;padding:6px 14px;font:800 15px/1.25 var(--ui);text-align:center;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;max-width:88vw}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -184,9 +185,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 .pod.g2 .medal{background:radial-gradient(circle at 35% 30%,#fff,#d4d8de 55%,#9aa1aa)}
 .pod.g3 .medal{background:radial-gradient(circle at 35% 30%,#ffe2c4,#d99a62 55%,#9c5f2c)}
 .pod .crown{font:400 22px/1 var(--display);color:var(--gold-d);-webkit-text-stroke:1px var(--ink);height:22px}
-.pod .pn{font:800 15px/1.15 var(--ui);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
-.pod .ps{font:800 13px/1.2 var(--ui);font-variant-numeric:tabular-nums;opacity:.85;margin-bottom:4px}
-.pod .step{width:100%;border:3px solid var(--ink);border-bottom:0;border-radius:12px 12px 0 0;display:grid;place-items:start center;padding-top:6px;font:800 30px/1 var(--ui);color:var(--cream);-webkit-text-stroke:5px var(--ink);paint-order:stroke fill}
+.pod .pn{font:800 15px/1.15 var(--ui);background:var(--cream);border:2px solid var(--ink);border-radius:8px;padding:2px 6px!important;color:var(--ink);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
+.pod .ps{font:800 15px/1.2 var(--ui);font-variant-numeric:tabular-nums;background:var(--gold);color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:1px 9px;margin:4px 0 6px}
+.pod .step{width:100%;border:3px solid var(--ink);border-bottom:0;border-radius:12px 12px 0 0;display:grid;place-items:start center;padding-top:6px;font:800 30px/1 var(--ui);color:#fff;text-shadow:2.5px 0.0px 0 var(--ink),-2.5px 0.0px 0 var(--ink),0.0px 2.5px 0 var(--ink),0.0px -2.5px 0 var(--ink),1.8px 1.8px 0 var(--ink),-1.8px 1.8px 0 var(--ink),1.8px -1.8px 0 var(--ink),-1.8px -1.8px 0 var(--ink)}
 .pod.g1 .step{height:120px;background:linear-gradient(#f7d86a,#d99a22)}
 .pod.g2 .step{height:86px;background:linear-gradient(#e9ebee,#aab1ba)}
 .pod.g3 .step{height:64px;background:linear-gradient(#efc69c,#b07a45)}
@@ -433,12 +434,12 @@ const SKINS=[
   {id:'mocho',name:'Fato de Mocho',desc:'Sábio da floresta',price:7000,req:{chal:30},suit:'#9a7a55',dark:'#4e3a26',belly:'#e8d8b8',ears:'tufts',tail:'feather',pattern:'owl'},
   {id:'panda',name:'Fato de Panda',desc:'Preto e branco, sempre a sorrir',price:8500,req:{lvl:8},suit:'#f6f4ef',dark:'#1f1f1f',limb:'#26262a',belly:'#ffffff',ears:'round',earCol:'#26262a',tail:'stub'},
   {id:'pinguim',name:'Fato de Pinguim',desc:'Chegou da Montanha gelada',price:10000,req:{dist:1600,lvl:7},suit:'#2a2e38',dark:'#14161c',belly:'#ffffff',ears:'none',tail:'stub',beak:true},
-  {id:'dourado',name:'Suricata Dourado',desc:'A lenda do Bandhu',price:25000,req:{lvl:12,dist:2000,pts:1500},suit:'#f2c94c',dark:'#b8860b',belly:'#fff3c4',ears:'meer',tail:'thin',fx:'gold'}
-  ,{id:'girafa',req:{pts:1500},name:'Fato de Girafa',desc:'Manchas e ossicones de girafa',special:true,blue:30,suit:'#ecb760',dark:'#9a5a24',belly:'#f8e6bd',ears:'round',tail:'tuft',pattern:'spots',extra:'ossicones'}
-  ,{id:'borboleta',req:{pts:1500},name:'Fato de Borboleta',desc:'Asas coloridas a bater',special:true,blue:30,suit:'#8ec5ee',dark:'#2f5f9e',belly:'#eaf4fc',ears:'none',tail:'stub',extra:'antennae',wings:'butterfly',fx:'glitter'}
-  ,{id:'dinossauro',req:{pts:1500},name:'Fato de Dinossauro',desc:'Picos nas costas e cauda pesada',special:true,blue:45,suit:'#7cbf5e',dark:'#3e7a2e',belly:'#e8f3c8',ears:'none',tail:'dino',extra:'spikes',fx:'leaves'}
-  ,{id:'dragao',req:{pts:1500},name:'Fato de Dragão',desc:'Asas, cornos e cauda de dragão',special:true,blue:60,suit:'#d24a3c',dark:'#7a1f1a',belly:'#f6cf5a',ears:'pointy',tail:'dino',extra:'horns',wings:'dragon',fx:'flames'}
-  ,{id:'unicornio',req:{pts:1500},name:'Fato de Unicórnio',desc:'Corno dourado e crina arco-íris',special:true,blue:60,suit:'#fbf7ff',dark:'#b48be0',belly:'#ffffff',ears:'pointy',tail:'rainbow',extra:'horn',fx:'rainbow'}
+  {id:'dourado',name:'Suricata Dourado',desc:'A lenda do Bandhu',price:25000,req:{lvl:12,dist:2000,pts:2500},suit:'#f2c94c',dark:'#b8860b',belly:'#fff3c4',ears:'meer',tail:'thin',fx:'gold'}
+  ,{id:'girafa',req:{pts:2500},name:'Fato de Girafa',desc:'Manchas e ossicones de girafa',special:true,blue:30,suit:'#ecb760',dark:'#9a5a24',belly:'#f8e6bd',ears:'round',tail:'tuft',pattern:'spots',extra:'ossicones'}
+  ,{id:'borboleta',req:{pts:2500},name:'Fato de Borboleta',desc:'Asas coloridas a bater',special:true,blue:30,suit:'#8ec5ee',dark:'#2f5f9e',belly:'#eaf4fc',ears:'none',tail:'stub',extra:'antennae',wings:'butterfly',fx:'glitter'}
+  ,{id:'dinossauro',req:{pts:2500},name:'Fato de Dinossauro',desc:'Picos nas costas e cauda pesada',special:true,blue:45,suit:'#7cbf5e',dark:'#3e7a2e',belly:'#e8f3c8',ears:'none',tail:'dino',extra:'spikes',fx:'leaves'}
+  ,{id:'dragao',req:{pts:2500},name:'Fato de Dragão',desc:'Asas, cornos e cauda de dragão',special:true,blue:60,suit:'#d24a3c',dark:'#7a1f1a',belly:'#f6cf5a',ears:'pointy',tail:'dino',extra:'horns',wings:'dragon',fx:'flames'}
+  ,{id:'unicornio',req:{pts:2500},name:'Fato de Unicórnio',desc:'Corno dourado e crina arco-íris',special:true,blue:60,suit:'#fbf7ff',dark:'#b48be0',belly:'#ffffff',ears:'pointy',tail:'rainbow',extra:'horn',fx:'rainbow'}
 ];
 const SPECIALS=SKINS.filter(s=>s.special);
 const dayNum=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);};
@@ -606,11 +607,15 @@ function buildSprites(){
   SPR.rwheel=mk(140,140,g=>{const c=70,r=58;const cs=['#d6452f','#fbf6ea','#f2c94c','#fbf6ea','#d6452f','#fbf6ea','#f2c94c','#fbf6ea'];for(let i=0;i<8;i++){g.beginPath();g.moveTo(c,c);g.arc(c,c,r,i*Math.PI/4,(i+1)*Math.PI/4);g.closePath();g.fillStyle=cs[i];g.fill();}g.beginPath();g.arc(c,c,r,0,7);g.lineWidth=8;g.strokeStyle=INK;g.stroke();g.beginPath();g.arc(c,c,12,0,7);g.fillStyle='#fbf6ea';g.fill();g.lineWidth=5;g.stroke();});
   SPR.wolf=mk(140,150,g=>{g.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3-Math.PI/2;g.lineTo(70+Math.cos(a)*66,75+Math.sin(a)*70);}g.closePath();g.fillStyle='#fff';g.fill();g.lineWidth=8;g.strokeStyle=INK;g.stroke();g.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3-Math.PI/2;g.lineTo(70+Math.cos(a)*56,75+Math.sin(a)*60);}g.closePath();g.fillStyle=INK;g.fill();face(g,70,80,40,'lobo');});
   // bloqueios
-  SPR.rock=mk(1.15*PX,1.1*PX,(g,w,h)=>{g.beginPath();g.moveTo(10,h-6);g.bezierCurveTo(0,h*.5,w*.2,8,w*.5,8);g.bezierCurveTo(w*.85,6,w-4,h*.45,w-8,h-6);g.closePath();fs(g,'#8d9188',6);g.fillStyle='#a6aa9f';ell(g,w*.38,h*.38,w*.16,h*.12);g.fill();g.beginPath();g.moveTo(w*.2,h*.3);g.bezierCurveTo(w*.35,4,w*.7,2,w*.82,h*.32);g.bezierCurveTo(w*.6,h*.22,w*.4,h*.26,w*.2,h*.3);fs(g,'#6f9255',4);});
-  SPR.snowrock=mk(1.15*PX,1.1*PX,(g,w,h)=>{g.beginPath();g.moveTo(10,h-6);g.bezierCurveTo(0,h*.5,w*.2,8,w*.5,8);g.bezierCurveTo(w*.85,6,w-4,h*.45,w-8,h-6);g.closePath();fs(g,'#7f8a94',6);g.beginPath();g.moveTo(w*.12,h*.42);g.bezierCurveTo(w*.25,2,w*.75,0,w*.9,h*.4);g.quadraticCurveTo(w*.75,h*.3,w*.62,h*.4);g.quadraticCurveTo(w*.5,h*.28,w*.38,h*.38);g.quadraticCurveTo(w*.25,h*.3,w*.12,h*.42);fs(g,'#fbfdff',4);});
-  SPR.termite=mk(1.05*PX,1.35*PX,(g,w,h)=>{g.beginPath();g.moveTo(8,h-6);g.quadraticCurveTo(w*.18,h*.45,w*.35,h*.2);g.quadraticCurveTo(w*.42,4,w*.52,h*.12);g.quadraticCurveTo(w*.62,h*.04,w*.66,h*.3);g.quadraticCurveTo(w*.9,h*.55,w-8,h-6);g.closePath();fs(g,'#c07a45',6);g.fillStyle='#4a2c18';for(const [x,y] of[[.4,.5],[.6,.62],[.32,.75],[.55,.35]]){ell(g,w*x,h*y,6,8);g.fill();}g.strokeStyle='rgba(36,26,20,.3)';g.lineWidth=3;g.beginPath();g.moveTo(w*.25,h*.85);g.lineTo(w*.75,h*.85);g.stroke();});
-  SPR.stump=mk(1.15*PX,1*PX,(g,w,h)=>{g.beginPath();g.moveTo(10,h-6);g.lineTo(16,h*.3);g.quadraticCurveTo(w/2,h*.4,w-16,h*.3);g.lineTo(w-10,h-6);g.quadraticCurveTo(w/2,h,10,h-6);fs(g,'#7a5030',6);ell(g,w/2,h*.3,w/2-16,h*.13);fs(g,'#d9b483',5);g.strokeStyle='#a8814f';g.lineWidth=3;ell(g,w/2,h*.3,w*.22,h*.07);g.stroke();ell(g,w/2,h*.3,w*.1,h*.035);g.stroke();for(const [x,c] of[[.2,'#c0392b'],[.8,'#d4a017']]){rr(g,w*x-3,h*.62,6,16,3);fs(g,'#f3ead8',2.5);ell(g,w*x,h*.62,12,7);fs(g,c,3);}});
-  SPR.crate=mk(1.1*PX,1.05*PX,(g,w,h)=>{rr(g,6,6,w-12,h-12,8);fs(g,'#a8743f',6);g.strokeStyle=INK;g.lineWidth=5;g.beginPath();g.moveTo(14,14);g.lineTo(w-14,h-14);g.moveTo(w-14,14);g.lineTo(14,h-14);g.stroke();});
+  SPR.rock=mk(1.2*PX,1.8*PX,(g,w,h)=>{g.beginPath();g.moveTo(10,h-6);g.bezierCurveTo(0,h*.5,w*.2,8,w*.5,8);g.bezierCurveTo(w*.85,6,w-4,h*.45,w-8,h-6);g.closePath();fs(g,'#8d9188',6);g.fillStyle='#a6aa9f';ell(g,w*.38,h*.38,w*.16,h*.12);g.fill();g.beginPath();g.moveTo(w*.2,h*.3);g.bezierCurveTo(w*.35,4,w*.7,2,w*.82,h*.32);g.bezierCurveTo(w*.6,h*.22,w*.4,h*.26,w*.2,h*.3);fs(g,'#6f9255',4);});
+  SPR.snowrock=mk(1.2*PX,1.8*PX,(g,w,h)=>{g.beginPath();g.moveTo(10,h-6);g.bezierCurveTo(0,h*.5,w*.2,8,w*.5,8);g.bezierCurveTo(w*.85,6,w-4,h*.45,w-8,h-6);g.closePath();fs(g,'#7f8a94',6);g.beginPath();g.moveTo(w*.12,h*.42);g.bezierCurveTo(w*.25,2,w*.75,0,w*.9,h*.4);g.quadraticCurveTo(w*.75,h*.3,w*.62,h*.4);g.quadraticCurveTo(w*.5,h*.28,w*.38,h*.38);g.quadraticCurveTo(w*.25,h*.3,w*.12,h*.42);fs(g,'#fbfdff',4);});
+  SPR.termite=mk(1.1*PX,1.9*PX,(g,w,h)=>{g.beginPath();g.moveTo(8,h-6);g.quadraticCurveTo(w*.18,h*.45,w*.35,h*.2);g.quadraticCurveTo(w*.42,4,w*.52,h*.12);g.quadraticCurveTo(w*.62,h*.04,w*.66,h*.3);g.quadraticCurveTo(w*.9,h*.55,w-8,h-6);g.closePath();fs(g,'#c07a45',6);g.fillStyle='#4a2c18';for(const [x,y] of[[.4,.5],[.6,.62],[.32,.75],[.55,.35]]){ell(g,w*x,h*y,6,8);g.fill();}g.strokeStyle='rgba(36,26,20,.3)';g.lineWidth=3;g.beginPath();g.moveTo(w*.25,h*.85);g.lineTo(w*.75,h*.85);g.stroke();});
+  SPR.stump=mk(1.1*PX,1.9*PX,(g,w,h)=>{const t=h*.1,ry=w*.11;g.beginPath();g.moveTo(10,h-6);g.lineTo(14,t);g.lineTo(w*.3,t-ry*.9);g.lineTo(w*.42,t+ry*.2);g.lineTo(w*.56,t-ry*1.4);g.lineTo(w*.7,t+ry*.1);g.lineTo(w-14,t-ry*.6);g.lineTo(w-10,h-6);g.quadraticCurveTo(w/2,h,10,h-6);fs(g,'#7a5030',6);
+    g.strokeStyle='rgba(36,26,20,.45)';g.lineWidth=4;for(const x of[.28,.5,.72]){g.beginPath();g.moveTo(w*x,t+ry*1.4);g.quadraticCurveTo(w*x+6,h*.55,w*x-4,h-14);g.stroke();}
+    ell(g,w/2,t+ry*.2,w/2-18,ry*.75);fs(g,'#d9b483',4);g.strokeStyle='#a8814f';g.lineWidth=3;ell(g,w/2,t+ry*.2,w*.18,ry*.35);g.stroke();
+    g.beginPath();g.moveTo(w*.12,h*.42);g.quadraticCurveTo(w*.3,h*.36,w*.45,h*.44);g.quadraticCurveTo(w*.3,h*.5,w*.12,h*.46);fs(g,'#6f9255',3);
+    for(const [x,y,c] of[[.22,.74,'#c0392b'],[.8,.62,'#d4a017']]){rr(g,w*x-3,h*y,6,16,3);fs(g,'#f3ead8',2.5);ell(g,w*x,h*y,12,7);fs(g,c,3);}});
+  SPR.crate=mk(1.1*PX,1.95*PX,(g,w,h)=>{const ch=(h-12)/2;const box=(x,y,bw,bh)=>{rr(g,x,y,bw,bh,8);fs(g,'#a8743f',6);g.strokeStyle=INK;g.lineWidth=5;g.beginPath();g.moveTo(x+8,y+8);g.lineTo(x+bw-8,y+bh-8);g.moveTo(x+bw-8,y+8);g.lineTo(x+8,y+bh-8);g.stroke();};box(6,h-6-ch,w-12,ch);box(12,8,w-22,ch-2);});
   // baixos (rastejar)
   SPR.liana=lowArch('#7a5030','#8a5a35',(g,w,h)=>{const bottom=h*.52;for(let i=0;i<7;i++){const x=w*.12+i*w*.127,len=bottom-h*.17-(i%2)*14;g.strokeStyle='#3f6b3a';g.lineWidth=5;g.beginPath();g.moveTo(x,h*.17);g.quadraticCurveTo(x+6,h*.17+len*.5,x,h*.17+len);g.stroke();for(let j=1;j<4;j++){const y=h*.17+len*j/3.4;g.save();g.translate(x,y);g.rotate(j%2?.6:-.6);ell(g,7,0,9,4.5);fs(g,j%2?'#6f9255':'#5c844a',2.5);g.restore();}}for(let i=0;i<5;i++){ell(g,w*.15+i*w*.18,h*.05,14,8);fs(g,'#6f9255',3);}});
   SPR.thorn=lowArch('#8a6a45','#9a7a52',(g,w,h)=>{g.strokeStyle='#6b4f2e';g.lineWidth=4;for(let i=0;i<9;i++){const x=w*.08+i*w*.105;g.beginPath();g.moveTo(x,h*.17);g.lineTo(x+(i%2?6:-6),h*(.28+(i%3)*.06));g.stroke();}for(let i=0;i<4;i++){ell(g,w*.2+i*w*.2,h*.47,16,7);fs(g,'#8da24f',3);}g.strokeStyle='#5a7a2a';g.lineWidth=3;for(let i=0;i<4;i++){g.beginPath();g.moveTo(w*.2+i*w*.2,h*.17);g.lineTo(w*.2+i*w*.2,h*.42);g.stroke();}});
