@@ -404,12 +404,12 @@ const SKINS=[
   {id:'mocho',name:'Fato de Mocho',desc:'Sábio da floresta',price:7000,req:{chal:30},suit:'#9a7a55',dark:'#4e3a26',belly:'#e8d8b8',ears:'tufts',tail:'feather',pattern:'owl'},
   {id:'panda',name:'Fato de Panda',desc:'Preto e branco, sempre a sorrir',price:8500,req:{lvl:8},suit:'#f6f4ef',dark:'#1f1f1f',limb:'#26262a',belly:'#ffffff',ears:'round',earCol:'#26262a',tail:'stub'},
   {id:'pinguim',name:'Fato de Pinguim',desc:'Chegou da Montanha gelada',price:10000,req:{dist:1600,lvl:7},suit:'#2a2e38',dark:'#14161c',belly:'#ffffff',ears:'none',tail:'stub',beak:true},
-  {id:'dourado',name:'Suricata Dourado',desc:'A lenda do Bandhu',price:25000,req:{lvl:12,dist:2000},suit:'#f2c94c',dark:'#b8860b',belly:'#fff3c4',ears:'meer',tail:'thin',fx:'gold'}
-  ,{id:'girafa',name:'Fato de Girafa',desc:'Manchas e ossicones de girafa',special:true,blue:30,suit:'#ecb760',dark:'#9a5a24',belly:'#f8e6bd',ears:'round',tail:'tuft',pattern:'spots',extra:'ossicones'}
-  ,{id:'borboleta',name:'Fato de Borboleta',desc:'Asas coloridas a bater',special:true,blue:30,suit:'#8ec5ee',dark:'#2f5f9e',belly:'#eaf4fc',ears:'none',tail:'stub',extra:'antennae',wings:'butterfly',fx:'glitter'}
-  ,{id:'dinossauro',name:'Fato de Dinossauro',desc:'Picos nas costas e cauda pesada',special:true,blue:45,suit:'#7cbf5e',dark:'#3e7a2e',belly:'#e8f3c8',ears:'none',tail:'dino',extra:'spikes',fx:'leaves'}
-  ,{id:'dragao',name:'Fato de Dragão',desc:'Asas, cornos e cauda de dragão',special:true,blue:60,suit:'#d24a3c',dark:'#7a1f1a',belly:'#f6cf5a',ears:'pointy',tail:'dino',extra:'horns',wings:'dragon',fx:'flames'}
-  ,{id:'unicornio',name:'Fato de Unicórnio',desc:'Corno dourado e crina arco-íris',special:true,blue:60,suit:'#fbf7ff',dark:'#b48be0',belly:'#ffffff',ears:'pointy',tail:'rainbow',extra:'horn',fx:'rainbow'}
+  {id:'dourado',name:'Suricata Dourado',desc:'A lenda do Bandhu',price:25000,req:{lvl:12,dist:2000,pts:3500},suit:'#f2c94c',dark:'#b8860b',belly:'#fff3c4',ears:'meer',tail:'thin',fx:'gold'}
+  ,{id:'girafa',req:{pts:3500},name:'Fato de Girafa',desc:'Manchas e ossicones de girafa',special:true,blue:30,suit:'#ecb760',dark:'#9a5a24',belly:'#f8e6bd',ears:'round',tail:'tuft',pattern:'spots',extra:'ossicones'}
+  ,{id:'borboleta',req:{pts:3500},name:'Fato de Borboleta',desc:'Asas coloridas a bater',special:true,blue:30,suit:'#8ec5ee',dark:'#2f5f9e',belly:'#eaf4fc',ears:'none',tail:'stub',extra:'antennae',wings:'butterfly',fx:'glitter'}
+  ,{id:'dinossauro',req:{pts:3500},name:'Fato de Dinossauro',desc:'Picos nas costas e cauda pesada',special:true,blue:45,suit:'#7cbf5e',dark:'#3e7a2e',belly:'#e8f3c8',ears:'none',tail:'dino',extra:'spikes',fx:'leaves'}
+  ,{id:'dragao',req:{pts:3500},name:'Fato de Dragão',desc:'Asas, cornos e cauda de dragão',special:true,blue:60,suit:'#d24a3c',dark:'#7a1f1a',belly:'#f6cf5a',ears:'pointy',tail:'dino',extra:'horns',wings:'dragon',fx:'flames'}
+  ,{id:'unicornio',req:{pts:3500},name:'Fato de Unicórnio',desc:'Corno dourado e crina arco-íris',special:true,blue:60,suit:'#fbf7ff',dark:'#b48be0',belly:'#ffffff',ears:'pointy',tail:'rainbow',extra:'horn',fx:'rainbow'}
 ];
 const SPECIALS=SKINS.filter(s=>s.special);
 const dayNum=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);};
@@ -432,8 +432,8 @@ const SLOTN={head:'Cabeça',eyes:'Olhos',back:'Costas'};
 const curAcc=()=>P.acc||{};
 const WOLF=SKINS.find(s=>s.id==='lobo');
 const curSkin=()=>SKINS.find(s=>s.id===P.skin)||SKINS[0];
-function reqMet(sk){const r=sk.req||{};return(!r.runs||P.runs>=r.runs)&&(!r.lvl||level()>=r.lvl)&&(!r.wolves||P.wolves>=r.wolves)&&(!r.chal||P.chalWins>=r.chal)&&(!r.dist||P.bestDist>=r.dist);}
-function reqText(sk){const r=sk.req||{},o=[];if(r.lvl)o.push('Nível '+r.lvl+(level()>=r.lvl?' ✓':''));if(r.wolves)o.push('Apanha '+r.wolves+' lobos ('+Math.min(P.wolves,r.wolves)+'/'+r.wolves+')');if(r.chal)o.push('Vence '+r.chal+' desafios ('+Math.min(P.chalWins,r.chal)+'/'+r.chal+')');if(r.dist)o.push('Corre '+r.dist+' m numa corrida (recorde '+P.bestDist+' m)');if(r.runs)o.push('Faz '+r.runs+' corridas ('+Math.min(P.runs,r.runs)+'/'+r.runs+')');return o.join(' · ');}
+function reqMet(sk){const r=sk.req||{};return(!r.pts||P.best>=r.pts)&&(!r.runs||P.runs>=r.runs)&&(!r.lvl||level()>=r.lvl)&&(!r.wolves||P.wolves>=r.wolves)&&(!r.chal||P.chalWins>=r.chal)&&(!r.dist||P.bestDist>=r.dist);}
+function reqText(sk){const r=sk.req||{},o=[];if(r.lvl)o.push('Nível '+r.lvl+(level()>=r.lvl?' ✓':''));if(r.wolves)o.push('Apanha '+r.wolves+' lobos ('+Math.min(P.wolves,r.wolves)+'/'+r.wolves+')');if(r.chal)o.push('Vence '+r.chal+' desafios ('+Math.min(P.chalWins,r.chal)+'/'+r.chal+')');if(r.dist)o.push('Corre '+r.dist+' m numa corrida (recorde '+P.bestDist+' m)');if(r.runs)o.push('Faz '+r.runs+' corridas ('+Math.min(P.runs,r.runs)+'/'+r.runs+')');if(r.pts)o.push('Faz '+r.pts+' pontos numa corrida (recorde '+P.best+')'+(P.best>=r.pts?' ✓':''));return o.join(' · ');}
 
 /* ---------- missões ---------- */
 const MT={
@@ -971,15 +971,15 @@ function shopRow(item,isAcc){
   else{b.textContent='Comprar';b.onclick=()=>{P.total-=item.price;(isAcc?P.ownedAcc:P.owned).push(item.id);equip();save();jingle(true);renderShop();};}
   row.append(c,info,b);row.onclick=e=>{if(e.target.closest('button'))return;openPreview(item,isAcc);};return row;}
 function specialRow(item){
-  const has=P.owned.includes(item.id),on=P.skin===item.id,today=true;
-  const row=document.createElement('div');row.className='skin'+(on?' on':'')+(!has&&!today?' locked':'');
+  const has=P.owned.includes(item.id),on=P.skin===item.id,today=true,ok=reqMet(item);
+  const row=document.createElement('div');row.className='skin'+(on?' on':'')+(!has&&!ok?' locked':'');
   const c=document.createElement('canvas');c.width=152;c.height=168;shopCanvases.push({c,item,isAcc:false});
   const info=document.createElement('div');info.style.minWidth='0';const h=document.createElement('h3');h.textContent=item.name;
-  const p=document.createElement('p');if(has)p.textContent=item.desc;else{const pr=document.createElement('span');pr.className='price blue pi';pr.innerHTML='<svg viewBox="0 0 100 100"><path d="'+FLEUR_D+'" fill="#5aa0ee" stroke="#241a14" stroke-width="5"/></svg>';pr.append(String(item.blue));p.append(pr,document.createElement('br'));const l=document.createElement('span');l.textContent='Raro · também pode sair na roleta';p.append(l);}
+  const p=document.createElement('p');if(has)p.textContent=item.desc;else{const pr=document.createElement('span');pr.className='price blue pi';pr.innerHTML='<svg viewBox="0 0 100 100"><path d="'+FLEUR_D+'" fill="#5aa0ee" stroke="#241a14" stroke-width="5"/></svg>';pr.append(String(item.blue));p.append(pr,document.createElement('br'));const l=document.createElement('span');l.className=ok?'':'lock';l.textContent=ok?'Raro · também pode sair na roleta':reqText(item)+' · ou sai na roleta';p.append(l);}
   info.append(h,p);const b=document.createElement('button');b.className='btn small';
   if(on){b.textContent='Equipado';b.disabled=true;}
   else if(has){b.textContent='Usar';b.onclick=()=>{P.skin=item.id;save();snd(660,.12,'triangle',.08);renderShop();};}
-  else if(!today){b.textContent='Noutro dia';b.disabled=true;}
+  else if(!ok){b.textContent='Bloqueado';b.disabled=true;}
   else if(P.blue<item.blue){b.textContent='Faltam '+(item.blue-P.blue);b.disabled=true;}
   else{b.textContent='Comprar';b.onclick=()=>{P.blue-=item.blue;P.owned.push(item.id);P.skin=item.id;save();jingle(true);renderShop();};}
   row.append(c,info,b);row.onclick=e=>{if(e.target.closest('button'))return;openPreview(item,false);};return row;}
