@@ -176,6 +176,28 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 #nick:focus-visible{outline:3px solid var(--gold-d);outline-offset:2px}
 .msg{font:700 14px/1.3 var(--ui);min-height:18px}
 .msg.err{color:var(--red)}
+.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:8px;width:100%;margin:4px 0 14px}
+.pod{display:flex;flex-direction:column;align-items:center;min-width:0}
+.pod .medal{width:46px;height:46px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;font:800 22px/1 var(--ui);margin-bottom:4px;box-shadow:0 3px 0 var(--ink)}
+.pod.g1 .medal{width:58px;height:58px;font-size:28px;background:radial-gradient(circle at 35% 30%,#fff3b8,#f2c94c 55%,#c98a17);box-shadow:0 3px 0 var(--ink),0 0 18px 4px rgba(242,201,76,.75)}
+.pod.g2 .medal{background:radial-gradient(circle at 35% 30%,#fff,#d4d8de 55%,#9aa1aa)}
+.pod.g3 .medal{background:radial-gradient(circle at 35% 30%,#ffe2c4,#d99a62 55%,#9c5f2c)}
+.pod .crown{font:400 22px/1 var(--display);color:var(--gold-d);-webkit-text-stroke:1px var(--ink);height:22px}
+.pod .pn{font:800 15px/1.15 var(--ui);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
+.pod .ps{font:800 13px/1.2 var(--ui);font-variant-numeric:tabular-nums;opacity:.85;margin-bottom:4px}
+.pod .step{width:100%;border:3px solid var(--ink);border-bottom:0;border-radius:12px 12px 0 0;display:grid;place-items:start center;padding-top:6px;font:400 30px/1 var(--display);color:var(--cream);-webkit-text-stroke:5px var(--ink);paint-order:stroke fill}
+.pod.g1 .step{height:120px;background:linear-gradient(#f7d86a,#d99a22)}
+.pod.g2 .step{height:86px;background:linear-gradient(#e9ebee,#aab1ba)}
+.pod.g3 .step{height:64px;background:linear-gradient(#efc69c,#b07a45)}
+.pod.me .pn{background:var(--sash);color:#fff;border-radius:8px;padding:1px 6px}
+.pod.empty{opacity:.35}
+.podbase{height:8px;background:var(--ink);border-radius:4px;grid-column:1/-1;margin-top:-8px}
+.mypos{position:sticky;bottom:0;width:100%;box-sizing:border-box;margin-top:10px;background:var(--sash);color:#fff;border:3px solid var(--ink);border-radius:14px;padding:10px 14px;font:800 17px/1.25 var(--ui);box-shadow:0 4px 0 var(--ink)}
+.mypos small{display:block;font:700 13px/1.3 var(--ui);opacity:.9}
+.live{font:800 12px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:6px;margin:0 0 8px;opacity:.8}
+.live i{width:9px;height:9px;border-radius:50%;background:#d6452f;animation:livepulse 1.4s infinite}
+@keyframes livepulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+.rankslogan{font:400 20px/1.15 var(--display);margin:0 0 8px;text-wrap:balance}
 .board{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;width:100%}
 .board li{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:10px;background:var(--cream);border:3px solid var(--ink);border-radius:14px;padding:8px 12px;font:700 17px var(--ui);text-align:left}
 .board li .pos{font-weight:800;font-variant-numeric:tabular-nums}
@@ -253,8 +275,12 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
     <button class="btn small" id="rankReload">Atualizar</button>
   </div>
   <div class="inner">
-    <ol class="board" id="board"></ol>
+    <p class="rankslogan">Consegues tu manter o recorde de todos?</p>
+    <p class="live" id="rankLive" hidden><i></i>Ao vivo · <span id="rankWhen"></span></p>
+    <div class="podium" id="podium" hidden></div>
+    <ol class="board" id="board" start="4"></ol>
     <p class="empty" id="rankEmpty" hidden></p>
+    <div class="mypos" id="myPos" hidden></div>
   </div>
 </section>
 
@@ -910,7 +936,8 @@ function gameOver(){state='over';const m=Math.floor(G.dist),pts=m+G.fl*10;P.tota
   const dl=$('doneList');dl.innerHTML='';for(const d of G.done){const s=document.createElement('span');s.textContent='★ '+d;dl.append(s);}
   lastRun={score:pts,meters:m,flores:G.fl,saved:false};
   $('rankBox').hidden=!rankOn()||pts<=0;$('nick').value=P.nick||'';$('rankMsg').textContent='';$('rankMsg').className='msg';$('saveScore').disabled=false;
-  show('over');maybeAskInstall();}
+  show('over');maybeAskInstall();
+  if(rankOn()&&P.nick&&pts>(P.rankBest||0)){$('nick').value=P.nick;$('saveScore').click();}}
 function toMenu(){state='menu';refreshMenu();show('menu');maybeAskInstall();}
 $('installBtn').onclick=()=>{initAudio();openInstall();};$('insNo').onclick=closeInstall;
 $('insGo').onclick=async()=>{if(!deferredPrompt){closeInstall();return;}deferredPrompt.prompt();try{const r=await deferredPrompt.userChoice;if(r.outcome==='accepted'){P.installed=true;save();}}catch(e){}deferredPrompt=null;closeInstall();refreshInstallBtn();};
@@ -934,17 +961,47 @@ $('saveScore').onclick=async()=>{if(!lastRun||lastRun.saved)return;const name=cl
   $('saveScore').disabled=true;msg.className='msg';msg.textContent='A guardar…';
   try{const r=await api('rpc/bandhu_submit',{method:'POST',body:JSON.stringify({p_name:name,p_token:P.token,p_score:lastRun.score,p_meters:lastRun.meters,p_flores:lastRun.flores})});
     if(r==='taken'){$('saveScore').disabled=false;msg.className='msg err';msg.textContent='O nome "'+name+'" já é de outro jogador. Escolhe outro nome.';return;}
-    if(r!=='ok')throw new Error(r);lastRun.saved=true;P.nick=name;save();msg.textContent='Guardado! Vê a tua posição no ranking.';}
+    if(r!=='ok')throw new Error(r);lastRun.saved=true;P.nick=name;P.rankBest=Math.max(P.rankBest||0,lastRun.score);save();msg.textContent='Guardado!';
+    try{const d=await fetchBoard(20);if(d.me){const top=d.top||[];msg.textContent=(d.me.pos===1?'És o n.º 1 de todos! Guardado.':'Guardado! Estás em '+d.me.pos+'.º lugar de '+d.total+'.')+(d.me.pos>1&&top.length?' O recorde é '+fmtPts(top[0].score)+'.':'');}}catch(e){}}
   catch(e){$('saveScore').disabled=false;msg.className='msg err';msg.textContent='Não foi possível guardar. Verifica a internet e tenta outra vez.';}};
-async function openRank(){state='rank';show('rank');const board=$('board'),empty=$('rankEmpty');board.innerHTML='';empty.hidden=false;
-  if(!rankOn()){empty.textContent='O ranking fica ativo na versão online do jogo.';return;}
-  empty.textContent='A carregar o ranking…';
-  try{const rows=await api('bandhu_scores?select=name,score&order=score.desc&limit=400');const seen=new Set(),top=[];for(const r of rows||[]){const k=r.name.toLowerCase();if(seen.has(k))continue;seen.add(k);top.push(r);if(top.length>=30)break;}
-    if(!top.length){empty.textContent='Ainda ninguém jogou. Sê o primeiro a entrar no ranking!';return;}
-    empty.hidden=true;const me=(P.nick||'').toLowerCase();
-    top.forEach((r,i)=>{const li=document.createElement('li');li.className=(i<3?'p'+(i+1):'')+(r.name.toLowerCase()===me?' me':'');const p=document.createElement('span');p.className='pos';p.textContent=(i+1)+'.';const n=document.createElement('span');n.className='nm';n.textContent=r.name;const b=document.createElement('b');b.textContent=r.score+' pts';li.append(p,n,b);board.append(li);});
-  }catch(e){empty.textContent='Não foi possível carregar o ranking. Verifica a internet e tenta outra vez.';}}
-$('rankBtn').onclick=openRank;$('rankReload').onclick=openRank;$('rankBack').onclick=toMenu;
+// Classificação: melhor pontuação de cada nome (servidor), top 20 com pódio, posição geral do jogador e atualização automática.
+let rankTimer=0,rankBusy=false;
+async function fetchBoard(limit){const me=(P.nick||'').trim();
+  try{const r=await api('rpc/bandhu_leaderboard',{method:'POST',body:JSON.stringify({p_name:me||null,p_limit:limit})});if(r&&r.top)return r;}catch(e){}
+  const rows=await api('bandhu_scores?select=name,score&order=score.desc,created_at.asc&limit=2000');const seen=new Set(),all=[];
+  for(const x of rows||[]){const k=x.name.toLowerCase();if(seen.has(k))continue;seen.add(k);all.push({name:x.name,score:x.score,pos:all.length+1});}
+  const lk=me.toLowerCase();return {top:all.slice(0,limit),me:all.find(x=>x.name.toLowerCase()===lk)||null,total:all.length};}
+function fmtPts(n){return n.toLocaleString('pt-PT')+' pts';}
+function renderRank(d){const board=$('board'),pod=$('podium'),empty=$('rankEmpty'),my=$('myPos');const me=(P.nick||'').toLowerCase();
+  board.innerHTML='';pod.innerHTML='';const top=d.top||[];
+  if(!top.length){pod.hidden=true;my.hidden=true;empty.hidden=false;empty.textContent='Ainda ninguém jogou. Sê o primeiro a entrar no ranking!';return;}
+  empty.hidden=true;pod.hidden=false;
+  for(const i of [1,0,2]){const r=top[i],c=document.createElement('div');c.className='pod g'+(i+1)+(r?'':' empty')+(r&&r.name.toLowerCase()===me?' me':'');
+    const cr=document.createElement('div');cr.className='crown';cr.textContent=i===0?'♛':'';
+    const md=document.createElement('div');md.className='medal';md.textContent=i+1;
+    const pn=document.createElement('div');pn.className='pn';pn.textContent=r?r.name:'—';
+    const ps=document.createElement('div');ps.className='ps';ps.textContent=r?fmtPts(r.score):' ';
+    const st=document.createElement('div');st.className='step';st.textContent=(i+1)+'.º';
+    c.append(cr,md,pn,ps,st);pod.append(c);}
+  const base=document.createElement('div');base.className='podbase';pod.append(base);
+  top.slice(3,20).forEach((r,j)=>{const li=document.createElement('li');li.className=r.name.toLowerCase()===me?'me':'';const p=document.createElement('span');p.className='pos';p.textContent=(r.pos||j+4)+'.';const n=document.createElement('span');n.className='nm';n.textContent=r.name;const b=document.createElement('b');b.textContent=fmtPts(r.score);li.append(p,n,b);board.append(li);});
+  const inTop=top.some(r=>r.name.toLowerCase()===me);
+  if(d.me&&!inTop){my.hidden=false;my.innerHTML='';my.append('A tua posição: '+d.me.pos+'.º de '+d.total);const sm=document.createElement('small');const gap=top.length>=20?top[19].score-d.me.score+1:0;sm.textContent=d.me.name+' · '+fmtPts(d.me.score)+(gap>0?' · faltam '+fmtPts(gap)+' para o top 20':'');my.append(sm);}
+  else if(!me){my.hidden=false;my.innerHTML='Ainda não estás na classificação<small>Joga e guarda a tua pontuação com um nome!</small>';}
+  else if(!d.me){my.hidden=false;my.innerHTML='';my.append(P.nick+' ainda não tem pontuação');const sm=document.createElement('small');sm.textContent='Guarda uma partida para entrares na classificação.';my.append(sm);}
+  else my.hidden=true;
+  $('rankLive').hidden=false;$('rankWhen').textContent='atualizado às '+new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+async function loadRank(quiet){if(rankBusy)return;rankBusy=true;const empty=$('rankEmpty');
+  if(!quiet){empty.hidden=false;empty.textContent='A carregar o ranking…';}
+  try{renderRank(await fetchBoard(20));}
+  catch(e){if(!quiet){$('podium').hidden=true;$('myPos').hidden=true;$('board').innerHTML='';empty.hidden=false;empty.textContent='Não foi possível carregar o ranking. Verifica a internet e tenta outra vez.';}}
+  finally{rankBusy=false;}}
+function stopRankPoll(){clearInterval(rankTimer);rankTimer=0;}
+async function openRank(){state='rank';show('rank');$('board').innerHTML='';$('podium').hidden=true;$('myPos').hidden=true;$('rankLive').hidden=true;
+  if(!rankOn()){$('rankEmpty').hidden=false;$('rankEmpty').textContent='O ranking fica ativo na versão online do jogo.';return;}
+  await loadRank(false);stopRankPoll();rankTimer=setInterval(()=>{if(state!=='rank'||document.hidden){if(state!=='rank')stopRankPoll();return;}loadRank(true);},8000);}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state==='rank')loadRank(true);});
+$('rankBtn').onclick=openRank;$('rankReload').onclick=()=>loadRank(false);$('rankBack').onclick=()=>{stopRankPoll();toMenu();};
 $('nick').addEventListener('keydown',e=>{if(e.key==='Enter')$('saveScore').click();});
 
 /* ---------- loja ---------- */
