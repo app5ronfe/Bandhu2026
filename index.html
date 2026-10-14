@@ -77,6 +77,14 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 #insTxt{margin:0;font:600 16px/1.4 var(--ui);text-wrap:balance}
 #insSteps{margin:0;padding-left:22px;text-align:left;font:700 15px/1.45 var(--ui);display:flex;flex-direction:column;gap:6px}
 #insSteps b{font-weight:800}
+#sound{z-index:30;background:rgba(36,26,20,.55)}
+.toggles{display:flex;flex-direction:column;gap:8px;width:100%}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:10px 12px;border:3px solid var(--ink);border-radius:14px;background:var(--cream);font:800 17px/1.1 var(--ui);color:var(--ink);cursor:pointer;text-align:left}
+.toggle:focus-visible{outline:3px solid var(--gold-d);outline-offset:3px}
+.toggle i{flex:none;width:52px;height:30px;border-radius:999px;border:3px solid var(--ink);background:#d9d3c4;position:relative;transition:background .2s}
+.toggle i::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--cream);border:2px solid var(--ink);transition:transform .2s}
+.toggle[aria-checked="true"] i{background:var(--sash)}
+.toggle[aria-checked="true"] i::after{transform:translateX(22px)}
 .btn{font:800 24px/1 var(--ui);letter-spacing:.06em;text-transform:uppercase;padding:16px 38px;border-radius:16px;border:3px solid var(--ink);background:var(--gold);color:var(--ink);box-shadow:0 5px 0 var(--ink);cursor:pointer}
 .btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
 .btn.ghost{background:var(--cream);font-size:16px;padding:10px 16px}
@@ -252,10 +260,21 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
   </div>
 </section>
 
+<section class="screen" id="sound" hidden>
+  <div class="inner">
+    <div class="card stack">
+      <h2>Som</h2>
+      <div class="toggles" id="soundList"></div>
+      <button class="btn" id="soundClose">Fechar</button>
+    </div>
+  </div>
+</section>
+
 <section class="screen" id="paused" hidden>
   <div class="inner">
     <div class="card stack">
       <h2>Pausa</h2>
+      <div class="toggles" id="pSound"></div>
       <div class="missions" id="pMissions"></div>
       <button class="btn" id="resumeBtn">Continuar</button>
       <button class="btn ghost" id="quitBtn">Sair para o menu</button>
@@ -315,6 +334,8 @@ function flip(g,x,dir,fn){g.save();if(dir<0){g.translate(x,0);g.scale(-1,1);g.tr
 
 /* ---------- perfil guardado ---------- */
 const P=Object.assign({total:LS.get('bandhu_total',0),best:LS.get('bandhu_best',0),bestDist:0,owned:LS.get('bandhu_owned',['base']),skin:LS.get('bandhu_skin','base'),stars:0,wolves:0,chalWins:0,runs:0,tiers:{},missions:[],acc:{},ownedAcc:[],mute:LS.get('bandhu_mute',false),nick:LS.get('bandhu_nick','')},LS.get('bandhu_p',{}));
+if(P.sMenu==null){const on=!P.mute;P.sMenu=on;P.sGame=on;P.sFx=on;}
+if(!P.token){try{P.token=crypto.randomUUID();}catch(e){P.token='xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g,()=>(Math.random()*16|0).toString(16));}}
 const save=()=>LS.set('bandhu_p',P);
 const level=()=>1+Math.floor(P.stars/3);
 
@@ -375,13 +396,16 @@ function renderMissions(el){el.innerHTML='';const head=document.createElement('d
 
 /* ---------- som ---------- */
 let AC=null;
-function snd(f,d,type='sine',v=.12,slide=0,delay=0){if(P.mute||!AC)return;const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(f*slide,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02);}
-function sfxNoise(fq,type,v,dur,delay=0){if(P.mute||!AC)return;makeNB();const t=AC.currentTime+delay,s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;f.type=type;f.frequency.value=fq;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f).connect(g).connect(AC.destination);s.start(t);s.stop(t+dur+.02);}
-function grunt(){if(P.mute||!AC)return;const t0=AC.currentTime;for(const [d0,f0] of [[0,105],[.24,88]]){const t=t0+d0,o=AC.createOscillator(),g=AC.createGain(),lf=AC.createOscillator(),lg=AC.createGain(),fl=AC.createBiquadFilter();o.type='sawtooth';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f0*.72,t+.2);lf.frequency.value=30;lg.gain.value=.09;lf.connect(lg).connect(g.gain);fl.type='lowpass';fl.frequency.value=650;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.connect(fl).connect(g).connect(AC.destination);o.start(t);o.stop(t+.25);lf.start(t);lf.stop(t+.25);}}
+function snd(f,d,type='sine',v=.12,slide=0,delay=0){if(!P.sFx||!AC)return;const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(f*slide,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02);}
+function sfxNoise(fq,type,v,dur,delay=0){if(!P.sFx||!AC)return;makeNB();const t=AC.currentTime+delay,s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;f.type=type;f.frequency.value=fq;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f).connect(g).connect(AC.destination);s.start(t);s.stop(t+dur+.02);}
+function grunt(){if(!P.sFx||!AC)return;const t0=AC.currentTime;for(const [d0,f0] of [[0,105],[.24,88]]){const t=t0+d0,o=AC.createOscillator(),g=AC.createGain(),lf=AC.createOscillator(),lg=AC.createGain(),fl=AC.createBiquadFilter();o.type='sawtooth';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f0*.72,t+.2);lf.frequency.value=30;lg.gain.value=.09;lf.connect(lg).connect(g.gain);fl.type='lowpass';fl.frequency.value=650;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.connect(fl).connect(g).connect(AC.destination);o.start(t);o.stop(t+.25);lf.start(t);lf.stop(t+.25);}}
 function hiss(){sfxNoise(5200,'highpass',.12,.5);}
 function screech(){snd(1500,.45,'sawtooth',.05,.45);snd(1900,.35,'triangle',.05,.5,.05);}
 const jingle=ok=>{(ok?[523,659,784,1046]:[392,330,262]).forEach((f,i)=>snd(f,.18,'triangle',.1,0,i*.11));};
-function setSoundLabel(){$('sndLbl').textContent=P.mute?'Sem som':'Som';$('sndWaves').style.display=P.mute?'none':'';$('sndOff').style.display=P.mute?'':'none';$('soundBtn').setAttribute('aria-label',P.mute?'Ligar o som':'Desligar o som');}
+const SOUNDS=[['sMenu','Música do menu'],['sGame','Música do jogo'],['sFx','Efeitos sonoros']];
+function setSoundLabel(){const off=!P.sMenu&&!P.sGame&&!P.sFx;$('sndLbl').textContent=off?'Sem som':'Som';$('sndWaves').style.display=off?'none':'';$('sndOff').style.display=off?'':'none';}
+function renderSoundToggles(el){el.innerHTML='';for(const [k,label] of SOUNDS){const b=document.createElement('button');b.className='toggle';b.setAttribute('role','switch');b.setAttribute('aria-checked',P[k]?'true':'false');const sp=document.createElement('span');sp.textContent=label;const kn=document.createElement('i');b.append(sp,kn);
+  b.onclick=()=>{P[k]=!P[k];save();b.setAttribute('aria-checked',P[k]?'true':'false');setSoundLabel();musicOK=true;syncMusic();if(k==='sFx'&&P[k])snd(660,.12,'triangle',.08);};el.append(b);}}
 /* música do menu: melodia instrumental gerada no próprio jogo */
 let MG=null,NB=null,mStep=0,mNext=0,musicOK=false;
 const BPM=92,STEP=60/BPM/4,TOTAL=256;
@@ -394,7 +418,7 @@ const CHORDS={Cmaj7:{r:48,v:[60,64,67,71]},Am7:{r:45,v:[57,60,64,67]},Fmaj7:{r:4
 const PROG=['Cmaj7','Am7','Fmaj7','G','Cmaj7','Am7','Fmaj7','G','Am7','Em7','Fmaj7','Cmaj7','Dm7','G','Cmaj7','G'];
 const ARP=[0,1,2,3,2,1,2,3];
 let RV=null;
-const musicTarget=()=>(!P.mute&&!document.hidden&&['menu','shop','rank'].includes(state))?.8:0;
+const musicTarget=()=>{if(document.hidden)return 0;if(['menu','shop','rank','over'].includes(state))return P.sMenu?.8:0;if(state==='play')return P.sGame?.42:0;if(state==='chal')return P.sGame?.3:0;if(state==='pause')return P.sGame?.2:0;return 0;};
 function makeReverb(){const len=AC.sampleRate*2.2,ir=AC.createBuffer(2,len,AC.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6);}RV=AC.createConvolver();RV.buffer=ir;const g=AC.createGain();g.gain.value=.55;RV.connect(g).connect(MG);}
 function env(type,f,t,dur,vol,a=.005,wet=0,lp=0){const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+a);g.gain.exponentialRampToValueAtTime(.0008,t+dur);
   let out=g;if(lp){const fl=AC.createBiquadFilter();fl.type='lowpass';fl.frequency.value=lp;g.connect(fl);out=fl;}
@@ -773,7 +797,7 @@ function start(){initAudio();ensureMissions();
   newGame();state='play';show(null);$('flores').textContent='0';$('biomePill').textContent=BIOMES[0].name;updatePills();
   if(!hintShown){hintShown=true;const h=$('hint');h.hidden=false;h.style.opacity=1;const msgs=['Desliza ← → para mudar de pista','Desliza ↑ para saltar troncos e buracos','Desliza ↓ para passar por baixo dos ramos'];let i=0;h.textContent=msgs[0];const iv=setInterval(()=>{i++;if(i<msgs.length)h.textContent=msgs[i];else{h.style.opacity=0;clearInterval(iv);setTimeout(()=>h.hidden=true,450);}},2200);}
 }
-function pause(){if(state!=='play')return;state='pause';renderMissions($('pMissions'));show('paused');}
+function pause(){if(state!=='play')return;state='pause';renderMissions($('pMissions'));renderSoundToggles($('pSound'));show('paused');}
 function resume(){state='play';show(null);last=performance.now();}
 function gameOver(){state='over';const m=Math.floor(G.dist),pts=m+G.fl*10;P.total+=G.fl;P.runs++;if(m>P.bestDist)P.bestDist=m;const rec=pts>P.best;if(rec)P.best=pts;checkMissions();save();
   $('oDist').textContent=m+' m';$('oFl').textContent=G.fl;$('oPts').textContent=pts;$('oBest').textContent=P.best;$('newRec').hidden=!rec;$('overTitle').textContent=rec?'Grande corrida!':'Bateste!';
@@ -787,7 +811,7 @@ $('insGo').onclick=async()=>{if(!deferredPrompt){closeInstall();return;}deferred
 $('playBtn').onclick=start;$('againBtn').onclick=start;
 $('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;
 $('pauseBtn').onclick=pause;$('resumeBtn').onclick=resume;
-$('soundBtn').onclick=()=>{P.mute=!P.mute;save();setSoundLabel();musicOK=true;syncMusic();};
+$('soundBtn').onclick=()=>{initAudio();renderSoundToggles($('soundList'));$('sound').hidden=false;};$('soundClose').onclick=()=>{$('sound').hidden=true;};
 $('shopBtn').onclick=openShop;$('overShop').onclick=openShop;$('shopBack').onclick=toMenu;
 document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();}musicTick();});
 function updatePills(){const m=$('multPill'),w=$('wolfPill');m.hidden=!(G&&G.multT>0);if(!m.hidden)m.textContent='x2 · '+Math.ceil(G.multT)+'s';w.hidden=!(G&&G.wolfT>0);$('eaglePill').hidden=!(G&&G.eagleT>0);}
@@ -802,7 +826,9 @@ const cleanName=s=>s.normalize('NFC').replace(/[^\p{L}\p{N} .'-]/gu,'').replace(
 $('saveScore').onclick=async()=>{if(!lastRun||lastRun.saved)return;const name=cleanName($('nick').value),msg=$('rankMsg');
   if(name.length<2){msg.className='msg err';msg.textContent='Escreve um nome com pelo menos 2 letras.';return;}
   $('saveScore').disabled=true;msg.className='msg';msg.textContent='A guardar…';
-  try{await api('bandhu_scores',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({name,score:lastRun.score,meters:lastRun.meters,flores:lastRun.flores})});lastRun.saved=true;P.nick=name;save();msg.textContent='Guardado! Vê a tua posição no ranking.';}
+  try{const r=await api('rpc/bandhu_submit',{method:'POST',body:JSON.stringify({p_name:name,p_token:P.token,p_score:lastRun.score,p_meters:lastRun.meters,p_flores:lastRun.flores})});
+    if(r==='taken'){$('saveScore').disabled=false;msg.className='msg err';msg.textContent='O nome "'+name+'" já é de outro jogador. Escolhe outro nome.';return;}
+    if(r!=='ok')throw new Error(r);lastRun.saved=true;P.nick=name;save();msg.textContent='Guardado! Vê a tua posição no ranking.';}
   catch(e){$('saveScore').disabled=false;msg.className='msg err';msg.textContent='Não foi possível guardar. Verifica a internet e tenta outra vez.';}};
 async function openRank(){state='rank';show('rank');const board=$('board'),empty=$('rankEmpty');board.innerHTML='';empty.hidden=false;
   if(!rankOn()){empty.textContent='O ranking fica ativo na versão online do jogo.';return;}
