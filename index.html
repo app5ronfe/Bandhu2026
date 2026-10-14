@@ -50,8 +50,11 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 #pvDesc{margin:0;font:600 15px/1.4 var(--ui)}
 .skin{cursor:pointer}
 .badge-hoje{display:inline-block;font:800 11px/1 var(--ui);letter-spacing:.1em;background:#d6452f;color:#fff;border-radius:6px;padding:3px 6px;margin-left:6px;vertical-align:middle}
-.price.blue{color:#2f6fb8}
+.price.blue,.skin .price.blue{color:#2f6fb8}
 .wallets{display:flex;gap:6px;justify-self:end}
+.mwallets{display:flex;gap:8px;justify-content:flex-end;width:100%;margin-bottom:-6px;position:relative;z-index:1}
+.mwallets .wallet{box-shadow:0 3px 0 var(--ink)}
+.pi{display:inline-flex;align-items:center;gap:3px;font-weight:800;font-variant-numeric:tabular-nums}.pi svg{width:18px;height:18px}
 .pill.biome{background:var(--cream)}
 .iconbtn{pointer-events:auto;width:44px;height:44px;border-radius:12px;border:3px solid var(--ink);background:var(--cream);color:var(--ink);font:800 18px/1 var(--ui);display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 0 var(--ink)}
 .iconbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
@@ -71,7 +74,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 #menu .inner{position:relative;gap:14px}
 .mtitle{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;padding-top:6px}
 .burst{position:absolute;inset:-4px 0 auto;width:100%;max-width:400px;margin:0 auto;height:auto;left:0;right:0}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);width:100%;background:var(--cream);border:3px solid var(--ink);border-radius:18px;box-shadow:0 4px 0 var(--ink);overflow:hidden}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);width:100%;background:var(--cream);border:3px solid var(--ink);border-radius:18px;box-shadow:0 4px 0 var(--ink);overflow:hidden}
 .stat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px}
 .stat+.stat{border-left:2px dashed rgba(36,26,20,.35)}
 .stat b{font:800 22px/1 var(--ui);font-variant-numeric:tabular-nums}
@@ -206,6 +209,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 
 <section class="screen" id="menu">
   <div class="inner">
+    <div class="mwallets"><span class="wallet"><svg viewBox="0 0 100 100"><path class="flPath" fill="#d99a22" stroke="#241a14" stroke-width="5"/></svg><span id="mTot">0</span></span><span class="wallet"><svg viewBox="0 0 100 100"><path class="flPath" fill="#5aa0ee" stroke="#241a14" stroke-width="5"/></svg><span id="mBlue">0</span></span></div>
     <header class="mtitle">
       <svg class="burst" viewBox="0 0 360 150" aria-hidden="true"><g stroke="#241a14" stroke-width="7" stroke-linecap="round" fill="none"><path d="M18 28 L42 44"/><path d="M8 72 L36 74"/><path d="M14 116 L40 102"/><path d="M342 28 L318 44"/><path d="M352 72 L324 74"/><path d="M346 116 L320 102"/><path d="M70 6 L80 26"/><path d="M290 6 L280 26"/></g></svg>
       <h1 class="title">BANDHU</h1>
@@ -215,8 +219,6 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
     <div class="stats">
       <div class="stat"><span class="hexn" id="mLvl">1</span><small>Nível</small></div>
       <div class="stat"><b id="mBest">0</b><small>Recorde</small></div>
-      <div class="stat"><b id="mTot">0</b><small>Flores</small></div>
-      <div class="stat"><b id="mBlue" style="color:#2f6fb8">0</b><small>Azuis</small></div>
     </div>
     <button class="btn play" id="playBtn">Jogar</button>
     <div class="boostnote" id="boostNote" hidden></div>
@@ -941,7 +943,7 @@ function shopRow(item,isAcc){
   const info=document.createElement('div');info.style.minWidth='0';
   if(isAcc){const sl=document.createElement('span');sl.className='slot';sl.textContent=SLOTN[item.slot];info.append(sl);}
   const h=document.createElement('h3');h.textContent=item.name;const p=document.createElement('p');
-  if(has)p.textContent=item.desc;else{const pr=document.createElement('span');pr.className='price';pr.textContent=item.price+' flores';p.append(pr);if(item.req){p.append(document.createElement('br'));const l=document.createElement('span');l.className=ok?'':'lock';l.textContent=reqText(item);p.append(l);}}
+  if(has)p.textContent=item.desc;else{const pr=document.createElement('span');pr.className='price pi';pr.innerHTML='<svg viewBox="0 0 100 100"><path d="'+FLEUR_D+'" fill="#d99a22" stroke="#241a14" stroke-width="5"/></svg>';pr.append(String(item.price));p.append(pr);if(item.req){p.append(document.createElement('br'));const l=document.createElement('span');l.className=ok?'':'lock';l.textContent=reqText(item);p.append(l);}}
   info.append(h,p);
   const b=document.createElement('button');b.className='btn small';
   const equip=()=>{if(isAcc){P.acc=Object.assign({},curAcc(),{[item.slot]:item.id});}else P.skin=item.id;};
@@ -957,7 +959,7 @@ function specialRow(item){
   const row=document.createElement('div');row.className='skin'+(on?' on':'')+(!has&&!today?' locked':'');
   const c=document.createElement('canvas');c.width=152;c.height=168;shopCanvases.push({c,item,isAcc:false});
   const info=document.createElement('div');info.style.minWidth='0';const h=document.createElement('h3');h.textContent=item.name;if(today){const bd=document.createElement('span');bd.className='badge-hoje';bd.textContent='HOJE';h.append(bd);}
-  const p=document.createElement('p');if(has)p.textContent=item.desc;else{const pr=document.createElement('span');pr.className='price blue';pr.textContent=item.blue+' flores azuis';p.append(pr,document.createElement('br'));const l=document.createElement('span');l.textContent=today?'À venda só hoje · também sai na roleta':'Aparece noutro dia · também sai na roleta';p.append(l);}
+  const p=document.createElement('p');if(has)p.textContent=item.desc;else{const pr=document.createElement('span');pr.className='price blue pi';pr.innerHTML='<svg viewBox="0 0 100 100"><path d="'+FLEUR_D+'" fill="#5aa0ee" stroke="#241a14" stroke-width="5"/></svg>';pr.append(String(item.blue));p.append(pr,document.createElement('br'));const l=document.createElement('span');l.textContent=today?'À venda só hoje · também sai na roleta':'Aparece noutro dia · também sai na roleta';p.append(l);}
   info.append(h,p);const b=document.createElement('button');b.className='btn small';
   if(on){b.textContent='Equipado';b.disabled=true;}
   else if(has){b.textContent='Usar';b.onclick=()=>{P.skin=item.id;save();snd(660,.12,'triangle',.08);renderShop();};}
@@ -976,7 +978,7 @@ function renderShop(){
   const list=$('skinList');list.innerHTML='';shopCanvases.length=0;
   if(shopTab==='spec'){for(const it of SPECIALS)list.append(specialRow(it));}else for(const it of(shopTab==='skins'?SKINS.filter(s=>!s.special):ACCS))list.append(shopRow(it,shopTab==='acc'));
 }
-function drawShop(t){for(const {c,item,isAcc} of shopCanvases){const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);const sk=isAcc?curSkin():item,acc=isAcc?Object.assign({},curAcc(),{[item.slot]:item.id}):curAcc();meerkatFront(g,76,isAcc&&item.slot==='head'?162:158,isAcc?122:128,t+item.price*.001,sk,{acc,blink:(t+item.price)%4<.12?1:0});}}
+function drawShop(t){for(const {c,item,isAcc} of shopCanvases){const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);const sk=isAcc?curSkin():item,acc=isAcc?Object.assign({},curAcc(),{[item.slot]:item.id}):curAcc();meerkatFront(g,76,isAcc&&item.slot==='head'?162:158,isAcc?122:128,t+(item.price||item.blue||0)*.001,sk,{acc,blink:(t+(item.price||item.blue||0))%4<.12?1:0});}}
 
 /* ---------- desafios ---------- */
 const chCv=$('chCv'),chg=chCv.getContext('2d');let CS=300;
