@@ -199,6 +199,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 .live{font:800 12px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:6px;margin:0 0 8px;opacity:.8}
 .live i{width:9px;height:9px;border-radius:50%;background:#d6452f;animation:livepulse 1.4s infinite}
 @keyframes livepulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+.rankcount{display:inline-block;margin:0 auto 10px;background:var(--gold);border:3px solid var(--ink);border-radius:999px;padding:4px 14px;font:800 16px/1.2 var(--ui);box-shadow:0 3px 0 var(--ink)}
 .rankslogan{font:400 20px/1.15 var(--display);margin:0 0 8px;text-wrap:balance}
 .board{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;width:100%}
 .board li{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:10px;background:var(--cream);border:3px solid var(--ink);border-radius:14px;padding:8px 12px;font:700 17px var(--ui);text-align:left}
@@ -279,6 +280,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
   <div class="inner">
     <p class="rankslogan">Consegues tu manter o recorde de todos?</p>
     <p class="live" id="rankLive" hidden><i></i>Ao vivo · <span id="rankWhen"></span></p>
+    <p class="rankcount" id="rankCount" hidden></p>
     <div class="podium" id="podium" hidden></div>
     <ol class="board" id="board" start="4"></ol>
     <p class="empty" id="rankEmpty" hidden></p>
@@ -985,7 +987,7 @@ async function fetchBoard(limit){const me=(P.nick||'').trim();
 function fmtPts(n){return n.toLocaleString('pt-PT')+' pts';}
 function renderRank(d){const board=$('board'),pod=$('podium'),empty=$('rankEmpty'),my=$('myPos');const me=(P.nick||'').toLowerCase();
   board.innerHTML='';pod.innerHTML='';const top=d.top||[];
-  if(!top.length){pod.hidden=true;my.hidden=true;empty.hidden=false;empty.textContent='Ainda ninguém jogou. Sê o primeiro a entrar no ranking!';return;}
+  if(!top.length){$('rankCount').hidden=true;pod.hidden=true;my.hidden=true;empty.hidden=false;empty.textContent='Ainda ninguém jogou. Sê o primeiro a entrar no ranking!';return;}
   empty.hidden=true;pod.hidden=false;
   for(const i of [1,0,2]){const r=top[i],c=document.createElement('div');c.className='pod g'+(i+1)+(r?'':' empty')+(r&&r.name.toLowerCase()===me?' me':'');
     const cr=document.createElement('div');cr.className='crown';cr.textContent=i===0?'♛':'';
@@ -1001,6 +1003,7 @@ function renderRank(d){const board=$('board'),pod=$('podium'),empty=$('rankEmpty
   else if(!me){my.hidden=false;my.innerHTML='Ainda não estás na classificação<small>Joga e guarda a tua pontuação com um nome!</small>';}
   else if(!d.me){my.hidden=false;my.innerHTML='';my.append(P.nick+' ainda não tem pontuação');const sm=document.createElement('small');sm.textContent='Guarda uma partida para entrares na classificação.';my.append(sm);}
   else my.hidden=true;
+  const tot=+d.total||top.length;$('rankCount').hidden=false;$('rankCount').textContent=tot+(tot===1?' participante':' participantes')+(tot>20?' · a mostrar o top 20':'');
   $('rankLive').hidden=false;$('rankWhen').textContent='atualizado às '+new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
 async function loadRank(quiet){if(rankBusy)return;rankBusy=true;const empty=$('rankEmpty');
   if(!quiet){empty.hidden=false;empty.textContent='A carregar o ranking…';}
@@ -1008,7 +1011,7 @@ async function loadRank(quiet){if(rankBusy)return;rankBusy=true;const empty=$('r
   catch(e){if(!quiet){$('podium').hidden=true;$('myPos').hidden=true;$('board').innerHTML='';empty.hidden=false;empty.textContent='Não foi possível carregar o ranking. Verifica a internet e tenta outra vez.';}}
   finally{rankBusy=false;}}
 function stopRankPoll(){clearInterval(rankTimer);rankTimer=0;}
-async function openRank(){state='rank';show('rank');$('board').innerHTML='';$('podium').hidden=true;$('myPos').hidden=true;$('rankLive').hidden=true;
+async function openRank(){state='rank';show('rank');$('board').innerHTML='';$('podium').hidden=true;$('myPos').hidden=true;$('rankLive').hidden=true;$('rankCount').hidden=true;
   if(!rankOn()){$('rankEmpty').hidden=false;$('rankEmpty').textContent='O ranking fica ativo na versão online do jogo.';return;}
   await loadRank(false);stopRankPoll();rankTimer=setInterval(()=>{if(state!=='rank'||document.hidden){if(state!=='rank')stopRankPoll();return;}loadRank(true);},8000);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state==='rank')loadRank(true);});
