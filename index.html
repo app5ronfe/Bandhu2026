@@ -591,7 +591,7 @@ const BIOMES=[
   {id:'floresta',name:'Floresta',sky:['#dfe5dc','#c9d3c6'],farT:'pines',far:'#9fb39f',nearT:'pines',near:'#7d9a80',grass:['#7f9a6e','#7a9469'],path:['#a98a64','#a2835d'],edge:'#5d4a33',ravine:['#33493a','#374d3e'],water:'rgba(100,150,150,.3)',decor:['pine','pine','pine','mushroom','bush','fern'],bg:['deer','deer','bear','owl','squirrel','flock'],block:'stump',low:'branch',jump:'log',mover:'boar',parts:'leaves'},
   {id:'montanha',name:'Montanha',sky:['#e6eef4','#c9d7e2'],farT:'peaks',far:'#b4c3cf',nearT:'peaks',near:'#94a6b4',grass:['#eef3f6','#e4ebf0'],path:['#b9b1a6','#b0a89d'],edge:'#7d756b',ravine:['#6f8290','#748795'],water:'rgba(200,225,240,.5)',decor:['snowpine','snowpine','rocksmall','snowpine'],bg:['goat','goat','bear','eagle','flock'],block:'snowrock',low:'icicle',jump:'logS',mover:'snowball',parts:'snow'}
 ];
-const BIOME_LEN=420;
+const BIOME_LEN=500;
 const biomeIdx=w=>Math.floor(Math.max(0,w)/BIOME_LEN)%BIOMES.length;
 const biomeAt=w=>BIOMES[biomeIdx(w)];
 
@@ -1163,7 +1163,7 @@ function update(dt){
   G.t+=dt;
   if(G.dying){G.dying-=dt;G.shake*=.9;if(G.dying<=0){if(G.hasRev){G.hasRev=false;updatePills();openWheel('rev');}else gameOver();}return;}
   const eagle=G.eagleT>0,wolf=G.wolfT>0||eagle;
-  G.speed=Math.min(SPEED_MAX,G.speed+dt*.27*Math.max(.2,1-(G.speed-14)/(SPEED_MAX-14)));G.runPh+=dt*(G.speed/15)*(G.wolfT>0?1.6:1);
+  G.speed=Math.min(SPEED_MAX,G.speed+dt*.17*Math.max(.2,1-(G.speed-14)/(SPEED_MAX-14)));G.runPh+=dt*(G.speed/15)*(G.wolfT>0?1.6:1);
   const v=G.speed*(G.wolfT>0?2.6:eagle?2.1:1);
   G.dist+=v*dt;G.st.m=Math.floor(G.dist);
   if(G.wolfT>0){G.wolfT-=dt;if(G.wolfT<=0){for(const o of G.objs)if(o.obs&&o.w-G.dist<14)o.gone=true;G.safeT=.6;updatePills();}}
@@ -1176,7 +1176,7 @@ function update(dt){
   if(G.y>0||G.vy>0){G.vy-=26*dt;G.y+=G.vy*dt;if(G.y<=0){G.y=0;G.vy=0;}}
   if(G.slide>0)G.slide-=dt;
   G.comboT-=dt;
-  const bi=biomeIdx(G.dist);if(bi!==G.biomeI){G.prevBiome=G.biomeI;G.biomeI=bi;G.blend=0;G.st.biome++;G.speed=Math.min(SPEED_MAX,G.speed+2);setTimeout(()=>{if(state==='play')toast('Mais rápido!');},1300);G.bgEv=G.bgEv.filter(e=>!WALK[e.k]);spawnBg(true);spawnBg(true);banner(BIOMES[bi].name.toUpperCase());$('biomePill').textContent=BIOMES[bi].name;snd(440,.3,'triangle',.08);snd(660,.4,'triangle',.08,0,.15);}
+  const bi=biomeIdx(G.dist);if(bi!==G.biomeI){G.prevBiome=G.biomeI;G.biomeI=bi;G.blend=0;G.st.biome++;G.speed=Math.min(SPEED_MAX,G.speed+.6);setTimeout(()=>{if(state==='play')toast('Mais rápido!');},1300);G.bgEv=G.bgEv.filter(e=>!WALK[e.k]);spawnBg(true);spawnBg(true);banner(BIOMES[bi].name.toUpperCase());$('biomePill').textContent=BIOMES[bi].name;snd(440,.3,'triangle',.08);snd(660,.4,'triangle',.08,0,.15);}
   {const n=dayState(G.dist).night>.5;if(n!==G.isNight){if(G.isNight!=null)toast(n?'Anoitece na '+BIOMES[G.biomeI].name+'…':'Amanhece!');G.isNight=n;}}
   if(G.blend<1)G.blend=Math.min(1,G.blend+dt*.8);
   const lvl=Math.min(1,(G.speed-14)/26);
@@ -1325,7 +1325,7 @@ function drawShade(ds){const {night,warm}=ds;
   if(warm>0){ctx.fillStyle=`rgba(255,140,70,${warm*.13})`;ctx.fillRect(-20,-20,W+40,H+40);}
   if(night>0){const pp=proj(G.laneX,0),gx=pp.x,gy2=gy-U*.4;const gr=ctx.createRadialGradient(gx,gy2,U*.5,gx,gy2,Math.max(W,H)*.85);gr.addColorStop(0,`rgba(14,20,52,${night*.12})`);gr.addColorStop(.35,`rgba(14,20,52,${night*.42})`);gr.addColorStop(1,`rgba(14,20,52,${night*.62})`);ctx.fillStyle=gr;ctx.fillRect(-20,-20,W+40,H+40);}}
 // Velocidade: sobe depressa no início e estabiliza num máximo difícil mas jogável; traços de velocidade e música acompanham.
-const SPEED_MAX=38;
+const SPEED_MAX=34;
 function speedK(){return clamp((G.speed-16)/(SPEED_MAX-16),0,1);}
 function drawSpeedLines(){const boost=G.wolfT>0||G.eagleT>0?.5:0,a=Math.min(1,speedK()+boost)*(G.dying?0:1);if(a<=.02)return;
   const cx=W/2,cy=hy+(H-hy)*.15,R=Math.hypot(W,H)*.75,n=Math.round(8+a*22);ctx.save();ctx.lineCap='round';
