@@ -1163,7 +1163,7 @@ function update(dt){
   G.t+=dt;
   if(G.dying){G.dying-=dt;G.shake*=.9;if(G.dying<=0){if(G.hasRev){G.hasRev=false;updatePills();openWheel('rev');}else gameOver();}return;}
   const eagle=G.eagleT>0,wolf=G.wolfT>0||eagle;
-  G.speed=Math.min(SPEED_MAX,G.speed+dt*.17*Math.max(.2,1-(G.speed-14)/(SPEED_MAX-14)));G.runPh+=dt*(G.speed/15)*(G.wolfT>0?1.6:1);
+  G.speed=Math.min(SPEED_MAX,G.speed+dt*.216*Math.max(.2,1-(G.speed-14)/(SPEED_MAX-14)));G.runPh+=dt*(G.speed/15)*(G.wolfT>0?1.6:1);
   const v=G.speed*(G.wolfT>0?2.6:eagle?2.1:1);
   G.dist+=v*dt;G.st.m=Math.floor(G.dist);
   if(G.wolfT>0){G.wolfT-=dt;if(G.wolfT<=0){for(const o of G.objs)if(o.obs&&o.w-G.dist<14)o.gone=true;G.safeT=.6;updatePills();}}
