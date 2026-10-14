@@ -74,6 +74,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 #menu .inner{position:relative;gap:14px}
 .mtitle{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;padding-top:6px}
 .burst{position:absolute;inset:-4px 0 auto;width:100%;max-width:400px;margin:0 auto;height:auto;left:0;right:0}
+.ptsf{grid-column:1/-1;margin-top:-6px;text-align:right;font:700 13px/1.2 var(--ui);opacity:.65}
 .stats{display:grid;grid-template-columns:repeat(2,1fr);width:100%;background:var(--cream);border:3px solid var(--ink);border-radius:18px;box-shadow:0 4px 0 var(--ink);overflow:hidden}
 .stat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px}
 .stat+.stat{border-left:2px dashed rgba(36,26,20,.35)}
@@ -367,6 +368,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
         <span>Flores de lis</span><b id="oFl">0</b>
         <span>Flores azuis</span><b id="oBl" style="color:#2f6fb8">0</b>
         <span>Pontos</span><b id="oPts">0</b>
+        <small class="ptsf" id="oPtsF"></small>
         <span class="best">Recorde</span><b class="best" id="oBest">0</b>
       </div>
       <div id="doneList"></div>
@@ -412,6 +414,7 @@ function flip(g,x,dir,fn){g.save();if(dir<0){g.translate(x,0);g.scale(-1,1);g.tr
 /* lançamento: apaga o progresso de testes guardado nos telemóveis */
 const RESET_VER=2;try{if((+localStorage.getItem('bandhu_reset')||0)<RESET_VER){['bandhu_p','bandhu_total','bandhu_best','bandhu_owned','bandhu_skin','bandhu_mute','bandhu_nick'].forEach(k=>localStorage.removeItem(k));localStorage.setItem('bandhu_reset',String(RESET_VER));}}catch(e){}
 const P=Object.assign({total:LS.get('bandhu_total',0),best:LS.get('bandhu_best',0),bestDist:0,owned:LS.get('bandhu_owned',['base']),skin:LS.get('bandhu_skin','base'),stars:0,wolves:0,chalWins:0,runs:0,tiers:{},missions:[],acc:{},ownedAcc:[],blue:0,lastSpin:'',startBoost:null,mute:LS.get('bandhu_mute',false),nick:LS.get('bandhu_nick','')},LS.get('bandhu_p',{}));
+if((P.scoreVer||1)<2){P.best=0;P.rankBest=0;P.scoreVer=2;try{localStorage.setItem('bandhu_p',JSON.stringify(P));}catch(e){}}
 if(P.sMenu==null){const on=!P.mute;P.sMenu=on;P.sGame=on;P.sFx=on;}
 if(!P.token){try{P.token=crypto.randomUUID();}catch(e){P.token='xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g,()=>(Math.random()*16|0).toString(16));}}
 const save=()=>LS.set('bandhu_p',P);
@@ -430,12 +433,12 @@ const SKINS=[
   {id:'mocho',name:'Fato de Mocho',desc:'Sábio da floresta',price:7000,req:{chal:30},suit:'#9a7a55',dark:'#4e3a26',belly:'#e8d8b8',ears:'tufts',tail:'feather',pattern:'owl'},
   {id:'panda',name:'Fato de Panda',desc:'Preto e branco, sempre a sorrir',price:8500,req:{lvl:8},suit:'#f6f4ef',dark:'#1f1f1f',limb:'#26262a',belly:'#ffffff',ears:'round',earCol:'#26262a',tail:'stub'},
   {id:'pinguim',name:'Fato de Pinguim',desc:'Chegou da Montanha gelada',price:10000,req:{dist:1600,lvl:7},suit:'#2a2e38',dark:'#14161c',belly:'#ffffff',ears:'none',tail:'stub',beak:true},
-  {id:'dourado',name:'Suricata Dourado',desc:'A lenda do Bandhu',price:25000,req:{lvl:12,dist:2000,pts:3500},suit:'#f2c94c',dark:'#b8860b',belly:'#fff3c4',ears:'meer',tail:'thin',fx:'gold'}
-  ,{id:'girafa',req:{pts:3500},name:'Fato de Girafa',desc:'Manchas e ossicones de girafa',special:true,blue:30,suit:'#ecb760',dark:'#9a5a24',belly:'#f8e6bd',ears:'round',tail:'tuft',pattern:'spots',extra:'ossicones'}
-  ,{id:'borboleta',req:{pts:3500},name:'Fato de Borboleta',desc:'Asas coloridas a bater',special:true,blue:30,suit:'#8ec5ee',dark:'#2f5f9e',belly:'#eaf4fc',ears:'none',tail:'stub',extra:'antennae',wings:'butterfly',fx:'glitter'}
-  ,{id:'dinossauro',req:{pts:3500},name:'Fato de Dinossauro',desc:'Picos nas costas e cauda pesada',special:true,blue:45,suit:'#7cbf5e',dark:'#3e7a2e',belly:'#e8f3c8',ears:'none',tail:'dino',extra:'spikes',fx:'leaves'}
-  ,{id:'dragao',req:{pts:3500},name:'Fato de Dragão',desc:'Asas, cornos e cauda de dragão',special:true,blue:60,suit:'#d24a3c',dark:'#7a1f1a',belly:'#f6cf5a',ears:'pointy',tail:'dino',extra:'horns',wings:'dragon',fx:'flames'}
-  ,{id:'unicornio',req:{pts:3500},name:'Fato de Unicórnio',desc:'Corno dourado e crina arco-íris',special:true,blue:60,suit:'#fbf7ff',dark:'#b48be0',belly:'#ffffff',ears:'pointy',tail:'rainbow',extra:'horn',fx:'rainbow'}
+  {id:'dourado',name:'Suricata Dourado',desc:'A lenda do Bandhu',price:25000,req:{lvl:12,dist:2000,pts:1000},suit:'#f2c94c',dark:'#b8860b',belly:'#fff3c4',ears:'meer',tail:'thin',fx:'gold'}
+  ,{id:'girafa',req:{pts:1000},name:'Fato de Girafa',desc:'Manchas e ossicones de girafa',special:true,blue:30,suit:'#ecb760',dark:'#9a5a24',belly:'#f8e6bd',ears:'round',tail:'tuft',pattern:'spots',extra:'ossicones'}
+  ,{id:'borboleta',req:{pts:1000},name:'Fato de Borboleta',desc:'Asas coloridas a bater',special:true,blue:30,suit:'#8ec5ee',dark:'#2f5f9e',belly:'#eaf4fc',ears:'none',tail:'stub',extra:'antennae',wings:'butterfly',fx:'glitter'}
+  ,{id:'dinossauro',req:{pts:1000},name:'Fato de Dinossauro',desc:'Picos nas costas e cauda pesada',special:true,blue:45,suit:'#7cbf5e',dark:'#3e7a2e',belly:'#e8f3c8',ears:'none',tail:'dino',extra:'spikes',fx:'leaves'}
+  ,{id:'dragao',req:{pts:1000},name:'Fato de Dragão',desc:'Asas, cornos e cauda de dragão',special:true,blue:60,suit:'#d24a3c',dark:'#7a1f1a',belly:'#f6cf5a',ears:'pointy',tail:'dino',extra:'horns',wings:'dragon',fx:'flames'}
+  ,{id:'unicornio',req:{pts:1000},name:'Fato de Unicórnio',desc:'Corno dourado e crina arco-íris',special:true,blue:60,suit:'#fbf7ff',dark:'#b48be0',belly:'#ffffff',ears:'pointy',tail:'rainbow',extra:'horn',fx:'rainbow'}
 ];
 const SPECIALS=SKINS.filter(s=>s.special);
 const dayNum=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);};
@@ -931,8 +934,8 @@ function start(){initAudio();if(!musicOK){musicOK=true;}startMusic();if(gameEl&&
 }
 function pause(){if(state!=='play')return;state='pause';renderMissions($('pMissions'));renderSoundToggles($('pSound'));show('paused');}
 function resume(){state='play';show(null);last=performance.now();}
-function gameOver(){state='over';const m=Math.floor(G.dist),pts=m+G.fl*10;P.total+=G.fl;P.blue+=G.blue;$('oBl').textContent=G.blue;P.runs++;if(m>P.bestDist)P.bestDist=m;const rec=pts>P.best;if(rec)P.best=pts;checkMissions();save();
-  $('oDist').textContent=m+' m';$('oFl').textContent=G.fl;$('oPts').textContent=pts;$('oBest').textContent=P.best;$('newRec').hidden=!rec;$('overTitle').textContent=rec?'Grande corrida!':'Bateste!';
+function gameOver(){state='over';const m=Math.floor(G.dist),pts=m+G.fl+G.blue*10;P.total+=G.fl;P.blue+=G.blue;$('oBl').textContent=G.blue;P.runs++;if(m>P.bestDist)P.bestDist=m;const rec=pts>P.best;if(rec)P.best=pts;checkMissions();save();
+  $('oDist').textContent=m+' m';$('oFl').textContent=G.fl;$('oPts').textContent=pts;$('oPtsF').textContent=m+' m + '+G.fl+' flores + '+G.blue+' azuis × 10';$('oBest').textContent=P.best;$('newRec').hidden=!rec;$('overTitle').textContent=rec?'Grande corrida!':'Bateste!';
   const dl=$('doneList');dl.innerHTML='';for(const d of G.done){const s=document.createElement('span');s.textContent='★ '+d;dl.append(s);}
   lastRun={score:pts,meters:m,flores:G.fl,saved:false};
   $('rankBox').hidden=!rankOn()||pts<=0;$('nick').value=P.nick||'';$('rankMsg').textContent='';$('rankMsg').className='msg';$('saveScore').disabled=false;
