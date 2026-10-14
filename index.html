@@ -102,6 +102,8 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 .inp:focus-visible{outline:3px solid var(--gold-d);outline-offset:2px}
 .inp.pin{letter-spacing:.5em;text-align:center;font-size:22px}
 .inp:disabled{background:#eee}
+.inp.pin::placeholder{letter-spacing:normal;font-size:16px}
+#aChoose{width:100%;gap:10px}#aChoose .btn{width:100%;box-sizing:border-box}
 .linkbtn{background:none;border:0;font:800 15px var(--ui);color:var(--sash);text-decoration:underline;cursor:pointer;padding:4px}
 #acctBtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;font-size:16px}
 #acctBtn.warn{background:#fde8c4}
@@ -320,9 +322,10 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
       <h2 id="aTitle">A tua conta</h2>
       <p id="aSub"></p>
       <input class="inp" id="aName" maxlength="20" autocomplete="username" placeholder="O teu nome">
-      <input class="inp pin" id="aPin" maxlength="4" inputmode="numeric" pattern="[0-9]*" type="password" autocomplete="current-password" placeholder="PIN">
-      <input class="inp pin" id="aPin2" maxlength="4" inputmode="numeric" pattern="[0-9]*" type="password" autocomplete="new-password" placeholder="Repete o PIN">
+      <input class="inp pin" id="aPin" maxlength="4" inputmode="numeric" pattern="[0-9]*" type="password" autocomplete="current-password" placeholder="Código (4 números)">
+      <input class="inp pin" id="aPin2" maxlength="4" inputmode="numeric" pattern="[0-9]*" type="password" autocomplete="new-password" placeholder="Repete o código">
       <div class="msg" id="aMsg"></div>
+      <div class="stack" id="aChoose" hidden><button class="btn" id="aChLogin">Entrar</button><button class="btn" id="aChNew" style="background:#dfe9f7">Criar conta</button></div>
       <button class="btn" id="aGo">Entrar</button>
       <button class="linkbtn" id="aSwitch">Já tenho conta</button>
       <button class="btn ghost" id="aClose">Fechar</button>
@@ -406,7 +409,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
       <div id="rankBox" hidden>
         <label for="nick">O teu nome no ranking do Bandhu</label>
         <div class="nickrow"><input id="nick" maxlength="20" autocomplete="nickname" placeholder="Ex.: Tomás R."><button class="btn small" id="saveScore">Guardar</button></div>
-        <input class="inp pin" id="nickPin" maxlength="4" inputmode="numeric" pattern="[0-9]*" type="password" autocomplete="new-password" placeholder="Escolhe um PIN de 4 números" hidden>
+        <input class="inp pin" id="nickPin" maxlength="4" inputmode="numeric" pattern="[0-9]*" type="password" autocomplete="new-password" placeholder="Escolhe um código de 4 números" hidden>
         <div class="msg" id="rankMsg"></div>
       </div>
       <div class="stack">
@@ -1003,34 +1006,36 @@ function applyProfile(pr){if(!pr||typeof pr!=='object')return;const keep={};for(
 async function cloudLoad(){if(!rankOn()||!P.nick||!P.hasPin)return;try{const pr=await api('rpc/bandhu_load_profile',{method:'POST',body:JSON.stringify({p_name:P.nick,p_token:P.token})});
   if(pr&&(pr.updAt||0)>(P.updAt||0)){applyProfile(pr);if(state==='menu')refreshMenu();}else if(!pr||(pr.updAt||0)<(P.updAt||0))cloudSave();}catch(e){}}
 function refreshAcctBtn(){const b=$('acctBtn');if(!b)return;b.hidden=!rankOn();b.classList.toggle('warn',!!P.nick&&!P.hasPin);
-  b.textContent=P.nick&&P.hasPin?'Conta: '+P.nick+' ✓':P.nick?'Protege a conta '+P.nick+' com um PIN':'Entrar / criar conta';}
+  b.textContent=P.nick&&P.hasPin?'Conta: '+P.nick+' ✓':P.nick?'Define o código da conta '+P.nick:'Entrar / criar conta';}
 let acctMode='login';
-function setAcctMode(m){acctMode=m;const nm=$('aName'),p2=$('aPin2'),sw=$('aSwitch');$('aMsg').textContent='';$('aMsg').className='msg';$('aPin').value='';p2.value='';nm.disabled=false;
-  if(m==='info'){$('aTitle').textContent='A tua conta';$('aSub').textContent='Estás na conta "'+P.nick+'". O teu progresso fica guardado online: noutro telemóvel ou browser entra com o teu nome e PIN.';nm.hidden=true;$('aPin').hidden=true;p2.hidden=true;$('aGo').hidden=true;sw.hidden=false;sw.textContent='Entrar noutra conta';}
-  else if(m==='protect'){$('aTitle').textContent='Protege a tua conta';$('aSub').textContent='Escolhe um PIN de 4 números. Com o nome e o PIN entras na tua conta em qualquer telemóvel ou browser, sem perder nada.';nm.hidden=false;nm.value=P.nick;nm.disabled=true;$('aPin').hidden=false;$('aPin').placeholder='Novo PIN';p2.hidden=false;$('aGo').hidden=false;$('aGo').textContent='Guardar PIN';sw.hidden=false;sw.textContent='Entrar noutra conta';}
-  else if(m==='create'){$('aTitle').textContent='Criar conta';$('aSub').textContent='Escolhe o teu nome (aparece no ranking) e um PIN de 4 números para entrares em qualquer telemóvel.';nm.hidden=false;nm.value='';$('aPin').hidden=false;$('aPin').placeholder='PIN';p2.hidden=false;$('aGo').hidden=false;$('aGo').textContent='Criar conta';sw.hidden=false;sw.textContent='Já tenho conta';}
-  else{$('aTitle').textContent='Entrar na conta';$('aSub').textContent='Escreve o nome e o PIN da tua conta.'+(P.nick||P.runs?' O progresso deste aparelho é trocado pelo da conta.':'');nm.hidden=false;nm.value='';$('aPin').hidden=false;$('aPin').placeholder='PIN';p2.hidden=true;$('aGo').hidden=false;$('aGo').textContent='Entrar';sw.hidden=false;sw.textContent='Criar conta nova';}}
-function openAcct(){setAcctMode(P.nick&&P.hasPin?'info':P.nick?'protect':'login');$('acct').hidden=false;}
-$('acctBtn').onclick=openAcct;$('aClose').onclick=()=>{$('acct').hidden=true;refreshAcctBtn();refreshMenu();};
+function setAcctMode(m){acctMode=m;const nm=$('aName'),p2=$('aPin2'),sw=$('aSwitch');$('aMsg').textContent='';$('aMsg').className='msg';$('aPin').value='';p2.value='';nm.disabled=false;$('aChoose').hidden=m!=='choose';$('aClose').textContent=m==='choose'?'Jogar sem conta':m==='protect'?'Mais tarde':'Fechar';
+  if(m==='choose'){$('aTitle').textContent='Bem-vindo ao Bandhu!';$('aSub').textContent='Já jogaste? Entra na tua conta. É a primeira vez? Cria uma conta com o teu nome e um código de 4 números: assim guardas o progresso e entras em qualquer telemóvel.';nm.hidden=true;$('aPin').hidden=true;p2.hidden=true;$('aGo').hidden=true;sw.hidden=true;return;}
+  if(m==='info'){$('aTitle').textContent='A tua conta';$('aSub').textContent='Estás na conta "'+P.nick+'". O teu progresso fica guardado online: noutro telemóvel ou browser entra com o teu nome e código.';nm.hidden=true;$('aPin').hidden=true;p2.hidden=true;$('aGo').hidden=true;sw.hidden=false;sw.textContent='Entrar noutra conta';}
+  else if(m==='protect'){$('aTitle').textContent='Define o teu código';$('aSub').textContent='A tua conta "'+P.nick+'" ainda não tem código. Escolhe um código de 4 números: com o nome e o código entras na tua conta em qualquer telemóvel ou browser, sem perder nada.';nm.hidden=false;nm.value=P.nick;nm.disabled=true;$('aPin').hidden=false;$('aPin').placeholder='Código (4 números)';p2.hidden=false;$('aGo').hidden=false;$('aGo').textContent='Guardar código';sw.hidden=false;sw.textContent='Entrar noutra conta';}
+  else if(m==='create'){$('aTitle').textContent='Criar conta';$('aSub').textContent='Escolhe o teu nome (aparece no ranking) e um código de 4 números. Guarda bem o código: é com ele que entras noutro telemóvel.';nm.hidden=false;nm.value='';$('aPin').hidden=false;$('aPin').placeholder='Código (4 números)';p2.placeholder='Repete o código';p2.hidden=false;$('aGo').hidden=false;$('aGo').textContent='Criar conta';sw.hidden=false;sw.textContent='Já tenho conta';}
+  else{$('aTitle').textContent='Entrar na conta';$('aSub').textContent='Escreve o nome e o código da tua conta.'+(P.nick||P.runs?' O progresso deste aparelho é trocado pelo da conta.':'');nm.hidden=false;nm.value='';$('aPin').hidden=false;$('aPin').placeholder='Código (4 números)';p2.hidden=true;$('aGo').hidden=false;$('aGo').textContent='Entrar';sw.hidden=false;sw.textContent='Criar conta nova';}}
+function openAcct(m){setAcctMode(m||(P.nick&&P.hasPin?'info':P.nick?'protect':'choose'));$('acct').hidden=false;}
+$('aChLogin').onclick=()=>setAcctMode('login');$('aChNew').onclick=()=>setAcctMode('create');
+$('acctBtn').onclick=()=>openAcct();$('aClose').onclick=()=>{$('acct').hidden=true;refreshAcctBtn();refreshMenu();};
 $('aSwitch').onclick=()=>setAcctMode(acctMode==='login'?'create':'login');
 for(const id of['aPin','aPin2','nickPin'])$(id).addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);});
 $('aGo').onclick=async()=>{const msg=$('aMsg'),go=$('aGo'),name=cleanName($('aName').value),pin=$('aPin').value.trim();const err=t=>{msg.className='msg err';msg.textContent=t;go.disabled=false;};
   if(!rankOn())return err('As contas só funcionam na versão online do jogo.');
   if(name.length<2)return err('Escreve o teu nome (pelo menos 2 letras).');
-  if(!/^\d{4}$/.test(pin))return err('O PIN tem de ter 4 números.');
-  if(acctMode!=='login'&&$('aPin2').value!==pin)return err('Os dois PIN não são iguais.');
+  if(!/^\d{4}$/.test(pin))return err('O código tem de ter 4 números.');
+  if(acctMode!=='login'&&$('aPin2').value!==pin)return err('Os dois códigos não são iguais.');
   go.disabled=true;msg.className='msg';msg.textContent='Um momento…';
   try{if(acctMode==='login'){const r=await api('rpc/bandhu_login',{method:'POST',body:JSON.stringify({p_name:name,p_pin:pin})});
       if(!r||r.status==='nouser')return err('Não existe nenhuma conta com o nome "'+name+'".');
-      if(r.status==='nopin')return err('Esta conta ainda não tem PIN. Abre o jogo no telemóvel onde a criaste e carrega em "Protege a conta".');
-      if(r.status==='badpin')return err('PIN errado. Tenta outra vez.');
+      if(r.status==='nopin')return err('Esta conta ainda não tem código. Abre o jogo no telemóvel onde a criaste: vai pedir-te para definires um código.');
+      if(r.status==='badpin')return err('Código errado. Tenta outra vez.');
       if(r.status!=='ok')return err('Não foi possível entrar. Tenta outra vez.');
       P.token=r.token;P.nick=r.name;P.hasPin=true;if(r.profile)applyProfile(r.profile);LS.set('bandhu_p',P);if(!r.profile)cloudSave();
       go.disabled=false;refreshAcctBtn();refreshMenu();setAcctMode('info');msg.textContent='Bem-vindo de volta, '+r.name+'!';}
     else{const r=await api('rpc/bandhu_set_pin',{method:'POST',body:JSON.stringify({p_name:name,p_token:P.token,p_pin:pin})});
       if(r==='taken')return err('O nome "'+name+'" já é de outro jogador. Se é teu, escolhe "Já tenho conta".');
-      if(r!=='ok')return err('Nome ou PIN inválidos.');
-      P.nick=name;P.hasPin=true;save();go.disabled=false;refreshAcctBtn();setAcctMode('info');msg.textContent='Conta pronta! Guarda bem o teu PIN.';}}
+      if(r!=='ok')return err('Nome ou código inválidos.');
+      P.nick=name;P.hasPin=true;save();go.disabled=false;refreshAcctBtn();setAcctMode('info');msg.textContent='Conta pronta! Guarda bem o teu código.';}}
   catch(e){err('Sem ligação à internet. Tenta outra vez.');}};
 async function api(path,opt={}){const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),8000);
   try{const r=await fetch(RANK.url.replace(/\/+$/,'')+'/rest/v1/'+path,{...opt,signal:ctl.signal,headers:{apikey:RANK.key,'Content-Type':'application/json',...(opt.headers||{})}});
@@ -1039,7 +1044,7 @@ const cleanName=s=>s.normalize('NFC').replace(/[^\p{L}\p{N} .'-]/gu,'').replace(
 $('saveScore').onclick=async()=>{if(!lastRun||lastRun.saved)return;const name=cleanName($('nick').value),msg=$('rankMsg');
   if(name.length<2){msg.className='msg err';msg.textContent='Escreve um nome com pelo menos 2 letras.';return;}
   const pinEl=$('nickPin'),pin=(pinEl.value||'').trim(),needPin=!P.hasPin&&(!P.nick||cleanName(P.nick).toLowerCase()!==name.toLowerCase());
-  if(needPin&&!/^\d{4}$/.test(pin)){msg.className='msg err';msg.textContent='Escolhe um PIN de 4 números. Com o nome e o PIN entras na tua conta em qualquer telemóvel.';pinEl.hidden=false;pinEl.focus();return;}
+  if(needPin&&!/^\d{4}$/.test(pin)){msg.className='msg err';msg.textContent='Escolhe um código de 4 números. Com o nome e o código entras na tua conta em qualquer telemóvel.';pinEl.hidden=false;pinEl.focus();return;}
   $('saveScore').disabled=true;msg.className='msg';msg.textContent='A guardar…';
   try{const r=await api('rpc/bandhu_submit',{method:'POST',body:JSON.stringify({p_name:name,p_token:P.token,p_score:lastRun.score,p_meters:lastRun.meters,p_flores:lastRun.flores})});
     if(r==='taken'){$('saveScore').disabled=false;msg.className='msg err';msg.textContent='O nome "'+name+'" já é de outro jogador. Se é a tua conta, entra no menu em "Conta". Senão, escolhe outro nome.';return;}
@@ -1576,7 +1581,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;tickMusic(dt)
   render();
   requestAnimationFrame(loop);}
 resize();newGame();G.dist=rnd(0,BIOME_LEN*4);G.nextDecor=G.dist;G.objs=[];for(let w=G.dist;w<G.dist+FAR;w+=rnd(2.2,4.5))spawnDecor(w);G.nextDecor=G.dist+FAR;G.biomeI=G.prevBiome=biomeIdx(G.dist);
-refreshMenu();refreshInstallBtn();refreshAcctBtn();cloudLoad();requestAnimationFrame(loop);
+refreshMenu();refreshInstallBtn();refreshAcctBtn();cloudLoad();if(rankOn()){if(!P.nick)openAcct('choose');else if(!P.hasPin)openAcct('protect');}requestAnimationFrame(loop);
 })();
 </script>
 
