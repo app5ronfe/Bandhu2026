@@ -404,7 +404,7 @@ const SKINS=[
   {id:'mocho',name:'Fato de Mocho',desc:'Sábio da floresta',price:7000,req:{chal:30},suit:'#9a7a55',dark:'#4e3a26',belly:'#e8d8b8',ears:'tufts',tail:'feather',pattern:'owl'},
   {id:'panda',name:'Fato de Panda',desc:'Preto e branco, sempre a sorrir',price:8500,req:{lvl:8},suit:'#f6f4ef',dark:'#1f1f1f',limb:'#26262a',belly:'#ffffff',ears:'round',earCol:'#26262a',tail:'stub'},
   {id:'pinguim',name:'Fato de Pinguim',desc:'Chegou da Montanha gelada',price:10000,req:{dist:1600,lvl:7},suit:'#2a2e38',dark:'#14161c',belly:'#ffffff',ears:'none',tail:'stub',beak:true},
-  {id:'dourado',name:'Suricata Dourado',desc:'A lenda do Bandhu',price:25000,req:{lvl:12,dist:4000},suit:'#f2c94c',dark:'#b8860b',belly:'#fff3c4',ears:'meer',tail:'thin',sparkle:true}
+  {id:'dourado',name:'Suricata Dourado',desc:'A lenda do Bandhu',price:25000,req:{lvl:12,dist:2000},suit:'#f2c94c',dark:'#b8860b',belly:'#fff3c4',ears:'meer',tail:'thin',sparkle:true}
   ,{id:'girafa',name:'Fato de Girafa',desc:'Manchas e ossicones de girafa',special:true,blue:30,suit:'#ecb760',dark:'#9a5a24',belly:'#f8e6bd',ears:'round',tail:'tuft',pattern:'spots',extra:'ossicones'}
   ,{id:'borboleta',name:'Fato de Borboleta',desc:'Asas coloridas a bater',special:true,blue:30,suit:'#8ec5ee',dark:'#2f5f9e',belly:'#eaf4fc',ears:'none',tail:'stub',extra:'antennae',wings:'butterfly'}
   ,{id:'dinossauro',name:'Fato de Dinossauro',desc:'Picos nas costas e cauda pesada',special:true,blue:45,suit:'#7cbf5e',dark:'#3e7a2e',belly:'#e8f3c8',ears:'none',tail:'dino',extra:'spikes'}
@@ -415,6 +415,7 @@ const SPECIALS=SKINS.filter(s=>s.special);
 const dayNum=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);};
 const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
 const dailySpecial=()=>SPECIALS[dayNum()%SPECIALS.length];
+const randomSpecial=()=>{const left=SPECIALS.filter(s=>!P.owned.includes(s.id));return left.length?pick(left):null;};
 const ACCS=[
   {id:'bone',slot:'head',name:'Boné',desc:'Para correr ao sol',price:700,req:{runs:5}},
   {id:'oculos',slot:'eyes',name:'Óculos redondos',desc:'Para ler os sinais de pista',price:1000,req:{chal:5}},
@@ -423,9 +424,9 @@ const ACCS=[
   {id:'oculosol',slot:'eyes',name:'Óculos de sol',desc:'Estilo na Savana',price:2200,req:{lvl:4,runs:10}},
   {id:'capa',slot:'back',name:'Capa de herói',desc:'Esvoaça ao correr',price:4000,req:{lvl:6}},
   {id:'aureola',slot:'head',name:'Auréola',desc:'Para os mais bem comportados',price:7500,req:{lvl:7,chal:20}},
-  {id:'asas',slot:'back',name:'Asas de anjo',desc:'Quase a voar',price:12000,req:{lvl:9,dist:2200}},
+  {id:'asas',slot:'back',name:'Asas de anjo',desc:'Quase a voar',price:12000,req:{lvl:9,dist:2000}},
   {id:'coroa',slot:'head',name:'Coroa',desc:'Rei ou rainha do Bandhu',price:15000,req:{lvl:10,wolves:20}},
-  {id:'asasd',slot:'back',name:'Asas douradas',desc:'Só para lendas',price:30000,req:{lvl:14,dist:5000}}
+  {id:'asasd',slot:'back',name:'Asas douradas',desc:'Só para lendas',price:30000,req:{lvl:14,dist:2000}}
 ];
 const SLOTN={head:'Cabeça',eyes:'Olhos',back:'Costas'};
 const curAcc=()=>P.acc||{};
@@ -955,11 +956,11 @@ function shopRow(item,isAcc){
   else{b.textContent='Comprar';b.onclick=()=>{P.total-=item.price;(isAcc?P.ownedAcc:P.owned).push(item.id);equip();save();jingle(true);renderShop();};}
   row.append(c,info,b);row.onclick=e=>{if(e.target.closest('button'))return;openPreview(item,isAcc);};return row;}
 function specialRow(item){
-  const has=P.owned.includes(item.id),on=P.skin===item.id,today=dailySpecial().id===item.id;
+  const has=P.owned.includes(item.id),on=P.skin===item.id,today=true;
   const row=document.createElement('div');row.className='skin'+(on?' on':'')+(!has&&!today?' locked':'');
   const c=document.createElement('canvas');c.width=152;c.height=168;shopCanvases.push({c,item,isAcc:false});
-  const info=document.createElement('div');info.style.minWidth='0';const h=document.createElement('h3');h.textContent=item.name;if(today){const bd=document.createElement('span');bd.className='badge-hoje';bd.textContent='HOJE';h.append(bd);}
-  const p=document.createElement('p');if(has)p.textContent=item.desc;else{const pr=document.createElement('span');pr.className='price blue pi';pr.innerHTML='<svg viewBox="0 0 100 100"><path d="'+FLEUR_D+'" fill="#5aa0ee" stroke="#241a14" stroke-width="5"/></svg>';pr.append(String(item.blue));p.append(pr,document.createElement('br'));const l=document.createElement('span');l.textContent=today?'À venda só hoje · também sai na roleta':'Aparece noutro dia · também sai na roleta';p.append(l);}
+  const info=document.createElement('div');info.style.minWidth='0';const h=document.createElement('h3');h.textContent=item.name;
+  const p=document.createElement('p');if(has)p.textContent=item.desc;else{const pr=document.createElement('span');pr.className='price blue pi';pr.innerHTML='<svg viewBox="0 0 100 100"><path d="'+FLEUR_D+'" fill="#5aa0ee" stroke="#241a14" stroke-width="5"/></svg>';pr.append(String(item.blue));p.append(pr,document.createElement('br'));const l=document.createElement('span');l.textContent='Raro · também pode sair na roleta';p.append(l);}
   info.append(h,p);const b=document.createElement('button');b.className='btn small';
   if(on){b.textContent='Equipado';b.disabled=true;}
   else if(has){b.textContent='Usar';b.onclick=()=>{P.skin=item.id;save();snd(660,.12,'triangle',.08);renderShop();};}
@@ -1346,7 +1347,7 @@ function openWheel(mode){initAudio();const segs=WHEELS[mode];let a=0;const tot=s
   WH={mode,segs,R:0,from:0,to:0,t:0,dur:4.2,spinning:false,done:false,res:null,last:-1};
   const sp=dailySpecial();$('wCard').classList.toggle('red',mode==='rev');
   $('wTitle').textContent=mode==='rev'?'Roleta da sorte!':'Roleta do Bandhu';
-  $('wSub').textContent=mode==='rev'?'Gira para tentar reviver':'Um giro grátis por dia · fato de hoje: '+sp.name.replace('Fato de ','');
+  $('wSub').textContent=mode==='rev'?'Gira para tentar reviver':'Um giro grátis por dia · pode sair um fato especial!';
   $('wMsg').textContent='';const spin=$('wSpin'),cl=$('wClose');spin.hidden=false;spin.disabled=false;spin.textContent='Girar';cl.hidden=mode==='rev';cl.textContent='Fechar';
   if(mode==='daily'&&P.lastSpin===todayKey()){spin.disabled=true;spin.textContent='Já giraste hoje';$('wMsg').textContent='Volta amanhã para mais um giro!';}
   if(mode==='rev'){state='rspin';}
@@ -1360,7 +1361,7 @@ function award(sg){let msg='';
   if(sg.icon==='fl'){P.total+=sg.amt;msg='Ganhaste '+sg.amt+' flores de lis!';}
   else if(sg.icon==='bl'){P.blue+=sg.amt;msg='Ganhaste '+sg.amt+' flor'+(sg.amt>1?'es':'')+' azu'+(sg.amt>1?'is':'l')+'!';}
   else if(sg.id==='lobo'||sg.id==='aguia'){P.startBoost=sg.id;msg='A próxima corrida começa com '+(sg.id==='lobo'?'o lobo':'a águia')+'!';}
-  else if(sg.icon==='skin'){const sp=dailySpecial();if(P.owned.includes(sp.id)){P.blue+=10;msg='Já tinhas o '+sp.name+': ganhaste 10 flores azuis!';}else{P.owned.push(sp.id);msg='Incrível! Ganhaste o '+sp.name+'!';}}
+  else if(sg.icon==='skin'){const sp=randomSpecial();if(!sp){P.blue+=10;msg='Já tens todos os fatos especiais: ganhaste 10 flores azuis!';}else{P.owned.push(sp.id);msg='Incrível! Ganhaste o '+sp.name+'!';}}
   save();return msg;}
 function finishWheel(){const W2=WH;$('wheel').hidden=true;WH=null;
   if(W2.mode==='rev'){const id=W2.res.id;if(id==='rev'||id==='revlobo'||id==='revaguia')revive(id);else gameOver();}else refreshMenu();}
