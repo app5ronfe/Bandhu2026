@@ -412,7 +412,7 @@ function flip(g,x,dir,fn){g.save();if(dir<0){g.translate(x,0);g.scale(-1,1);g.tr
 
 /* ---------- perfil guardado ---------- */
 /* lançamento: apaga o progresso de testes guardado nos telemóveis */
-const RESET_VER=2;try{if((+localStorage.getItem('bandhu_reset')||0)<RESET_VER){['bandhu_p','bandhu_total','bandhu_best','bandhu_owned','bandhu_skin','bandhu_mute','bandhu_nick'].forEach(k=>localStorage.removeItem(k));localStorage.setItem('bandhu_reset',String(RESET_VER));}}catch(e){}
+const RESET_VER=3;try{if((+localStorage.getItem('bandhu_reset')||0)<RESET_VER){['bandhu_p','bandhu_total','bandhu_best','bandhu_owned','bandhu_skin','bandhu_mute','bandhu_nick'].forEach(k=>localStorage.removeItem(k));localStorage.setItem('bandhu_reset',String(RESET_VER));}}catch(e){}
 const P=Object.assign({total:LS.get('bandhu_total',0),best:LS.get('bandhu_best',0),bestDist:0,owned:LS.get('bandhu_owned',['base']),skin:LS.get('bandhu_skin','base'),stars:0,wolves:0,chalWins:0,runs:0,tiers:{},missions:[],acc:{},ownedAcc:[],blue:0,lastSpin:'',startBoost:null,mute:LS.get('bandhu_mute',false),nick:LS.get('bandhu_nick','')},LS.get('bandhu_p',{}));
 if((P.scoreVer||1)<2){P.best=0;P.rankBest=0;P.scoreVer=2;try{localStorage.setItem('bandhu_p',JSON.stringify(P));}catch(e){}}
 if(P.sMenu==null){const on=!P.mute;P.sMenu=on;P.sGame=on;P.sFx=on;}
