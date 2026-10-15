@@ -1003,7 +1003,7 @@ function spawnPart(type){
 
 /* ---------- estado ---------- */
 let G=null,CH=null,state='menu',hintShown=false,lastChal=null;
-function newGame(){G={t:0,dist:0,speed:14,lane:0,laneX:0,y:0,vy:0,slide:0,fl:0,objs:[],nextW:30,nextDecor:0,shake:0,dying:0,combo:0,comboT:0,bgEv:[],bgNext:.4,nextChal:rnd(260,340),nextWolf:rnd(340,440),blue:0,nextBlue:rnd(380,560),nextRev:rnd(700,800),hasRev:false,mult:1,multT:0,wolfT:0,eagleT:0,fly:0,nextAir:0,safeT:0,
+function newGame(){G={t:0,dist:0,speed:14,lane:0,laneX:0,y:0,vy:0,slide:0,fl:0,objs:[],nextW:30,nextDecor:0,shake:0,dying:0,combo:0,comboT:0,bgEv:[],bgNext:.4,nextChal:rnd(260,340),nextWolf:rnd(340,440),blue:0,nextBlue:rnd(380,560),nextRev:rnd(850,1000),hasRev:false,mult:1,multT:0,wolfT:0,eagleT:0,fly:0,nextAir:0,safeT:0,
   runPh:0,st:{fl:0,m:0,jumps:0,slides:0,biome:0,combo:0},done:[],biomeI:0,prevBiome:0,blend:1,parts:[],clouds:[],chalCount:0,lastCheck:0};
   spawnBg(true);spawnBg(true);
   for(let i=0;i<3;i++)G.clouds.push({x:rnd(0,W),y:rnd(.08,.45)*hy,s:rnd(.7,1.3),v:rnd(4,10)});
@@ -1034,7 +1034,7 @@ function spawnRow(w){
     else if(!o||o.type!=='block'||nB<3){const l2=o&&nB<3?lanes[nB]:lane;const zig=Math.random()<.25&&lvl>.2;for(let i=0;i<6;i++){const ln=zig?clamp(l2+(i<3?0:(l2===1?-1:1)),-1,1):l2;G.objs.push({k:'coin',w:w-9+i*1.6,x:ln,lane:ln,h:.35});}}
   }
   if(G.dist+FAR>G.nextBlue){const free=lanes.slice(nB);const l=pick(free.length?free:lanes);G.objs.push({k:'blue',w:w+9,x:l,lane:l,h:.45});G.nextBlue+=rnd(400,600);}
-  if(G.dist+FAR>G.nextRev){if(!G.hasRev){const free=lanes.slice(nB);const l=pick(free.length?free:lanes);G.objs.push({k:'rev',w:w+10.5,x:l,lane:l,h:.5});}G.nextRev+=rnd(700,800);}
+  if(G.dist+FAR>G.nextRev){if(!G.hasRev){const free=lanes.slice(nB);const l=pick(free.length?free:lanes);G.objs.push({k:'rev',w:w+10.5,x:l,lane:l,h:.5});}G.nextRev+=rnd(900,1100);}
   if(G.dist+FAR>G.nextWolf){const l=pick(lanes.slice(nB).concat(lanes));const k=Math.random()<.45?'eagle':'wolf';G.objs.push({k,w:w+7,x:l,lane:l,h:.5});G.nextWolf+=rnd(450,650);}
 }
 
@@ -1572,7 +1572,7 @@ function drawShade(ds){const {night,warm}=ds;
   if(warm>0){ctx.fillStyle=`rgba(255,140,70,${warm*.13})`;ctx.fillRect(-20,-20,W+40,H+40);}
   if(night>0){const pp=proj(G.laneX,0),gx=pp.x,gy2=gy-U*.4;const gr=ctx.createRadialGradient(gx,gy2,U*.5,gx,gy2,Math.max(W,H)*.85);gr.addColorStop(0,`rgba(14,20,52,${night*.12})`);gr.addColorStop(.35,`rgba(14,20,52,${night*.42})`);gr.addColorStop(1,`rgba(14,20,52,${night*.62})`);ctx.fillStyle=gr;ctx.fillRect(-20,-20,W+40,H+40);}}
 // Velocidade: sobe depressa no início e estabiliza num máximo difícil mas jogável; traços de velocidade e música acompanham.
-const SPEED_MAX=33;
+const SPEED_MAX=37;
 function speedK(){return clamp((G.speed-16)/(SPEED_MAX-16),0,1);}
 function drawSpeedLines(){const boost=G.wolfT>0||G.eagleT>0?.5:0,a=Math.min(1,speedK()+boost)*(G.dying?0:1);if(a<=.02)return;
   const cx=W/2,cy=hy+(H-hy)*.15,R=Math.hypot(W,H)*.75,n=Math.round(8+a*22);ctx.save();ctx.lineCap='round';
