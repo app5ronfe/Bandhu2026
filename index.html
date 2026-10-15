@@ -220,7 +220,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 .msg.err{color:var(--red)}
 .podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:8px;width:100%;margin:4px 0 14px}
 .pod{display:flex;flex-direction:column;align-items:center;min-width:0}
-.pod .medal{width:46px;height:46px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;font:800 22px/1 var(--ui);margin-bottom:4px;box-shadow:0 3px 0 var(--ink)}
+.pod .podmk{width:84px;height:94px;margin-bottom:-14px;position:relative;z-index:1}
+.pod.g1 .podmk{width:100px;height:112px}
+.pod .medal{position:relative;z-index:2;width:46px;height:46px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;font:800 22px/1 var(--ui);margin-bottom:4px;box-shadow:0 3px 0 var(--ink)}
 .pod.g1 .medal{width:58px;height:58px;font-size:28px;background:radial-gradient(circle at 35% 30%,#fff3b8,#f2c94c 55%,#c98a17);box-shadow:0 3px 0 var(--ink),0 0 18px 4px rgba(242,201,76,.75)}
 .pod.g2 .medal{background:radial-gradient(circle at 35% 30%,#fff,#d4d8de 55%,#9aa1aa)}
 .pod.g3 .medal{background:radial-gradient(circle at 35% 30%,#ffe2c4,#d99a62 55%,#9c5f2c)}
@@ -1192,7 +1194,8 @@ $('saveScore').onclick=async()=>{if(!lastRun||lastRun.saved)return;const name=cl
   catch(e){$('saveScore').disabled=false;msg.className='msg err';msg.textContent='Não foi possível guardar. Verifica a internet e tenta outra vez.';}};
 // Classificação: melhor pontuação de cada nome (servidor), top 20 com pódio, posição geral do jogador e atualização automática.
 let rankTimer=0,rankBusy=false;
-let rankMode='geral';
+let rankMode='geral';const podMk=[];
+function drawPodium(t){for(const m of podMk){const g=m.c.getContext('2d');g.clearRect(0,0,180,200);meerkatFront(g,90,192,m.i===0?150:140,t+m.i*1.7,m.sk,{acc:m.acc,wave:((t+m.i*1.3)%5)<1.4?1:0,blink:((t+m.i)%4)<.12?1:0,mouth:.6});}}
 async function fetchBoard(limit){const me=(P.nick||'').trim();
   if(rankMode==='tour'){const r=await api('rpc/bandhu_tour_board',{method:'POST',body:JSON.stringify({p_name:me||null,p_limit:limit})});return r||{top:[],me:null,total:0};}
   try{const r=await api('rpc/bandhu_leaderboard',{method:'POST',body:JSON.stringify({p_name:me||null,p_limit:limit})});if(r&&r.top)return r;}catch(e){}
@@ -1201,16 +1204,17 @@ async function fetchBoard(limit){const me=(P.nick||'').trim();
   const lk=me.toLowerCase();return {top:all.slice(0,limit),me:all.find(x=>x.name.toLowerCase()===lk)||null,total:all.length};}
 function fmtPts(n){return n.toLocaleString('pt-PT')+' pts';}
 function renderRank(d){const board=$('board'),pod=$('podium'),empty=$('rankEmpty'),my=$('myPos');const me=(P.nick||'').toLowerCase();
-  board.innerHTML='';pod.innerHTML='';const top=d.top||[];
+  board.innerHTML='';pod.innerHTML='';podMk.length=0;const top=d.top||[];
   if(!top.length){$('rankCount').hidden=true;pod.hidden=true;my.hidden=true;empty.hidden=false;empty.textContent=rankMode==='tour'?(d.phase==='live'?'Ainda ninguém jogou o torneio. Sê o primeiro!':'O torneio ainda não começou.'):'Ainda ninguém jogou. Sê o primeiro a entrar no ranking!';return;}
   empty.hidden=true;pod.hidden=false;
   for(const i of [1,0,2]){const r=top[i],c=document.createElement('div');c.className='pod g'+(i+1)+(r?'':' empty')+(r&&r.name.toLowerCase()===me?' me':'');
     const cr=document.createElement('div');cr.className='crown';cr.textContent=i===0?'♛':'';
     const md=document.createElement('div');md.className='medal';md.textContent=i+1;
+    if(r){const cv=document.createElement('canvas');cv.className='podmk';cv.width=180;cv.height=200;const sk=SKINS.find(x=>x.id===r.skin)||SKINS[0],acc={};if(r.acc&&typeof r.acc==='object')for(const k in r.acc)if(ACCS.some(a=>a.id===r.acc[k]&&a.slot===k))acc[k]=r.acc[k];podMk.push({c:cv,sk,acc,i});c.append(cr,cv);}
     const pn=document.createElement('div');pn.className='pn';pn.textContent=r?r.name:'—';
     const ps=document.createElement('div');ps.className='ps';ps.textContent=r?fmtPts(r.score):' ';
     const st=document.createElement('div');st.className='step';st.textContent=(i+1)+'.º';
-    c.append(cr,md,pn,ps,st);pod.append(c);}
+    if(!c.contains(cr))c.append(cr);c.append(md,pn,ps,st);pod.append(c);}
   const base=document.createElement('div');base.className='podbase';pod.append(base);
   top.slice(3,20).forEach((r,j)=>{const li=document.createElement('li');li.className=r.name.toLowerCase()===me?'me':'';const p=document.createElement('span');p.className='pos';p.textContent=(r.pos||j+4)+'.';const n=document.createElement('span');n.className='nm';n.textContent=r.name;const b=document.createElement('b');b.textContent=fmtPts(r.score);li.append(p,n,b);board.append(li);});
   const inTop=top.some(r=>r.name.toLowerCase()===me);
@@ -1752,6 +1756,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;tickMusic(dt)
   if(WH&&!$('wheel').hidden)drawWheel(dt);
   if(PV&&!$('preview').hidden)drawPreview(now/1000);
   if(state==='shop')drawShop(now/1000);
+  if(state==='rank'&&podMk.length)drawPodium(now/1000);
   render();
   requestAnimationFrame(loop);}
 resize();newGame();G.dist=rnd(0,BIOME_LEN*4);G.nextDecor=G.dist;G.objs=[];for(let w=G.dist;w<G.dist+FAR;w+=rnd(2.2,4.5))spawnDecor(w);G.nextDecor=G.dist+FAR;G.biomeI=G.prevBiome=biomeIdx(G.dist);
