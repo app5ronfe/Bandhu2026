@@ -110,6 +110,10 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 .trophy{width:84px;height:84px;filter:drop-shadow(0 3px 0 var(--ink))}
 #tourChip{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;font:800 15px var(--ui);background:var(--ink);color:var(--gold);border:3px solid var(--ink);border-radius:14px;padding:9px 12px;cursor:pointer;box-shadow:0 0 14px 2px rgba(242,201,76,.55)}
 #tourChip b{font-variant-numeric:tabular-nums;color:#fff}
+#rConfirm{z-index:33;background:rgba(36,26,20,.65)}
+#rConfirm .card{text-align:center;align-items:center}#rConfirm p{margin:0;font:600 16px/1.45 var(--ui)}
+#rConfirm .rcwhen{font:800 18px/1.5 var(--ui)!important;background:var(--gold);border:3px solid var(--ink);border-radius:14px;padding:8px 14px}
+#rConfirm .btn{width:100%;box-sizing:border-box}
 #treg{z-index:32;background:rgba(36,26,20,.6)}
 #treg .card{text-align:left;align-items:stretch}
 #treg h2{text-align:center;margin:0}
@@ -373,12 +377,26 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
       <input class="inp" id="rFull" maxlength="80" autocomplete="name" placeholder="Nome completo">
       <input class="inp" id="rAge" type="number" inputmode="numeric" min="5" max="99" placeholder="Idade">
       <div class="rq"><span>És escuteiro?</span><label><input type="radio" name="rScout" value="1"> Sim</label><label><input type="radio" name="rScout" value="0"> Não</label></div>
-      <input class="inp" id="rGroup" maxlength="60" placeholder="Agrupamento (ex.: 5 Ronfe)" hidden>
+      <input class="inp" id="rGroup" maxlength="60" placeholder="Agrupamento (ex.: 5 Ronfe) *" hidden>
       <label class="rchk" id="rParentRow" hidden><input type="checkbox" id="rParent"> <span>Tenho autorização do meu pai, mãe ou encarregado de educação para me inscrever.</span></label>
       <p class="tsmall muted">Estes dados servem só para o Torneio e para o Bandhu 2026 e são apagados depois do evento. Não aparecem no jogo: na classificação só se vê o nome da tua conta.</p>
       <div class="msg" id="rMsg"></div>
       <button class="btn" id="rGo">Confirmar inscrição</button>
       <button class="btn ghost" id="rClose">Cancelar</button>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="rConfirm" hidden>
+  <div class="inner">
+    <div class="card stack">
+      <svg class="trophy" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 8h28v12c0 10-6 17-14 17S18 30 18 20z" fill="#f2c94c" stroke="#241a14" stroke-width="3"/><path d="M18 12H9v4c0 7 5 11 11 11M46 12h9v4c0 7-5 11-11 11" fill="none" stroke="#241a14" stroke-width="3"/><path d="M28 37h8v8h-8zM20 45h24v7H20z" fill="#d99a22" stroke="#241a14" stroke-width="3"/></svg>
+      <h2>Atenção!</h2>
+      <p>Para ganhares o prémio tens de <b>ficar em 1.º lugar</b> no torneio <b>e vir à atividade Bandhu</b>:</p>
+      <p class="rcwhen">📍 Parque Chefe Martins<br>📅 24 e 25 de outubro</p>
+      <p>Se não estiveres presente, o prémio passa para o jogador seguinte.</p>
+      <button class="btn" id="rcYes">Entendi, inscrever-me!</button>
+      <button class="btn ghost" id="rcNo">Voltar</button>
     </div>
   </div>
 </section>
@@ -1128,7 +1146,11 @@ $('rGo').onclick=async()=>{const msg=$('rMsg'),go=$('rGo'),full=$('rFull').value
   if(full.length<3||full.indexOf(' ')<0)return err('Escreve o teu nome completo (nome e apelido).');
   if(!(age>=5&&age<=99))return err('Escreve a tua idade.');
   if(!sc)return err('Diz-nos se és escuteiro.');
+  if(sc.value==='1'&&grp.length<2)return err('Escreve o teu agrupamento.');
   if(age<14&&!par)return err('Abaixo dos 14 anos precisas da autorização dos teus pais: marca a caixa.');
+  msg.textContent='';$('rConfirm').hidden=false;
+  $('rcNo').onclick=()=>{$('rConfirm').hidden=true;};
+  $('rcYes').onclick=async()=>{$('rConfirm').hidden=true;
   go.disabled=true;msg.className='msg';msg.textContent='A inscrever…';
   try{const r=await api('rpc/bandhu_tour_register',{method:'POST',body:JSON.stringify({p_name:P.nick,p_token:P.token,p_full:full,p_age:age,p_scout:sc.value==='1',p_group:sc.value==='1'?grp:'',p_parent:age<14&&par})});
     if(r==='closed')return err('As inscrições ainda não abriram ou o torneio já terminou.');
@@ -1136,7 +1158,7 @@ $('rGo').onclick=async()=>{const msg=$('rMsg'),go=$('rGo'),full=$('rFull').value
     if(r==='parent')return err('Abaixo dos 14 anos precisas da autorização dos teus pais.');
     if(r!=='ok')return err('Verifica os dados e tenta outra vez.');
     TS.registered=true;go.disabled=false;$('treg').hidden=true;tourUI();banner('INSCRITO NO TORNEIO!',1800);}
-  catch(e){err('Sem ligação à internet. Tenta outra vez.');}};
+  catch(e){err('Sem ligação à internet. Tenta outra vez.');}};};
 tourTick();tourTimer=setInterval(tourTick,1000);
 /* ---------- contas: nome + PIN, progresso guardado online ---------- */
 const DEVICE_KEYS=['token','nick','hasPin','sMenu','sGame','sFx','mute','installed','installAsked'];
