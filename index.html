@@ -126,6 +126,19 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 #tourney .btn{width:100%;box-sizing:border-box}
 .tourpill{background:var(--ink);color:var(--gold)}
 .tourres{width:100%;box-sizing:border-box;background:var(--ink);color:var(--gold);border-radius:14px;padding:10px 12px;font:800 15px/1.35 var(--ui);text-align:center}
+#adm{z-index:31;background:rgba(36,26,20,.6)}
+#adm .card{text-align:left;align-items:stretch;max-height:calc(100vh - 40px);overflow:auto}
+#adm h2{text-align:center;margin:0}
+#admBtn{width:100%;font-size:15px;background:#dfe9f7}
+#admTabs{grid-template-columns:repeat(3,1fr)}#admTabs button{font-size:13px;padding:8px 2px}
+.admsum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.admsum div{background:var(--gold);border:2px solid var(--ink);border-radius:12px;padding:6px 4px;text-align:center;font:800 12px/1.2 var(--ui)}
+.admsum b{display:block;font:800 22px/1.1 var(--ui)}
+.admlist{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.admrow{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:8px 10px;font:600 14px/1.35 var(--ui)}
+.admrow .top{display:flex;justify-content:space-between;gap:8px;font:800 15px var(--ui)}
+.admrow .tag{display:inline-block;font:800 11px/1 var(--ui);border-radius:6px;padding:3px 6px;margin-right:4px;border:1.5px solid var(--ink)}
+.tag.esc{background:#dff0dc}.tag.nao{background:#fde8c4}.tag.ok{background:#dfe9f7}.tag.no{background:#f7c3bc}
 #acct{z-index:31;background:rgba(36,26,20,.55)}
 #acct .card{text-align:center;align-items:stretch}
 #acct p{margin:0;font:600 15px/1.4 var(--ui)}
@@ -306,6 +319,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
     <button class="btn ghost" id="installBtn" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M12 7v7M9 11l3 3 3-3M10 18h4"/></svg>Instalar no telemóvel</button>
     <button id="tourChip" hidden>🏆 Torneio Bandhu · <b id="tourChipT"></b></button>
     <button class="btn ghost" id="acctBtn">Conta</button>
+    <button class="btn ghost" id="admBtn" hidden>🛡 Inscrições do torneio (admin)</button>
     <div class="card mcard"><div class="missions" id="mMissions"></div></div>
   </div>
 </section>
@@ -401,6 +415,27 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
       <p>Se não estiveres presente, o prémio passa para o jogador seguinte.</p>
       <button class="btn" id="rcYes">Entendi, inscrever-me!</button>
       <button class="btn ghost" id="rcNo">Voltar</button>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="adm" hidden>
+  <div class="inner">
+    <div class="card stack">
+      <h2>Inscrições do torneio</h2>
+      <div id="admLogin" class="stack" style="width:100%">
+        <p class="tsmall">Área de administrador. Escreve a palavra-passe de administrador.</p>
+        <input class="inp" id="admPass" type="password" autocomplete="current-password" placeholder="Palavra-passe de administrador">
+        <button class="btn" id="admGo">Ver inscrições</button>
+      </div>
+      <div id="admData" hidden style="width:100%">
+        <div class="admsum" id="admSum"></div>
+        <div class="rtabs" id="admTabs"><button data-f="all" class="on">Todos</button><button data-f="esc">Escuteiros</button><button data-f="nao">Não escuteiros</button></div>
+        <div class="admlist" id="admList"></div>
+        <button class="btn small" id="admReload">Atualizar</button>
+      </div>
+      <div class="msg" id="admMsg"></div>
+      <button class="btn ghost" id="admClose">Fechar</button>
     </div>
   </div>
 </section>
@@ -1119,6 +1154,31 @@ function updatePills(){const m=$('multPill'),w=$('wolfPill');m.hidden=!(G&&G.mul
 /* ---------- ranking ---------- */
 let lastRun=null;
 const rankOn=()=>!!(RANK.url&&RANK.key);
+/* ---------- administrador: lista das inscrições (conta de admin + palavra-passe) ---------- */
+let admPass='',admRows=[],admFilter='all';
+async function adminCheck(){const b=$('admBtn');b.hidden=true;if(!rankOn()||!P.nick||!P.token)return;try{const r=await api('rpc/bandhu_admin_check',{method:'POST',body:JSON.stringify({p_name:P.nick,p_token:P.token})});b.hidden=!(r&&r.admin);}catch(e){}}
+function admRender(){const L=$('admList');L.innerHTML='';const esc=admRows.filter(r=>r.scout).length;
+  $('admSum').innerHTML='';for(const [n,t] of[[admRows.length,'inscritos'],[esc,'escuteiros'],[admRows.length-esc,'não escuteiros']]){const d=document.createElement('div');const b=document.createElement('b');b.textContent=n;d.append(b,t);$('admSum').append(d);}
+  document.querySelectorAll('#admTabs button').forEach(x=>x.classList.toggle('on',x.dataset.f===admFilter));
+  const rows=admRows.filter(r=>admFilter==='all'||(admFilter==='esc'?r.scout:!r.scout));
+  if(!rows.length){const p=document.createElement('p');p.className='tsmall';p.textContent='Ainda não há inscrições aqui.';L.append(p);return;}
+  rows.forEach((r,i)=>{const d=document.createElement('div');d.className='admrow';const top=document.createElement('div');top.className='top';const a=document.createElement('span');a.textContent=(i+1)+'. '+r.full_name;const sc=document.createElement('span');sc.textContent=r.best!=null?r.best+' pts':'sem pontos';top.append(a,sc);
+    const l2=document.createElement('div');l2.textContent='Conta: '+r.nick+' · '+r.age+' anos · inscrito '+new Date(r.created_at).toLocaleString('pt-PT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const l3=document.createElement('div');const t1=document.createElement('span');t1.className='tag '+(r.scout?'esc':'nao');t1.textContent=r.scout?'Escuteiro'+(r.scout_group?' · '+r.scout_group:''):'Não escuteiro';l3.append(t1);
+    if(r.age<14){const t2=document.createElement('span');t2.className='tag '+(r.parent_ok?'ok':'no');t2.textContent=r.parent_ok?'Autorização dos pais ✓':'Sem autorização';l3.append(t2);}
+    d.append(top,l2,l3);L.append(d);});}
+async function admLoad(){const msg=$('admMsg');msg.className='msg';msg.textContent='A carregar…';
+  try{const r=await api('rpc/bandhu_admin_regs',{method:'POST',body:JSON.stringify({p_name:P.nick,p_token:P.token,p_pass:admPass})});
+    if(!r||r.status==='denied'){msg.className='msg err';msg.textContent='Esta conta não é de administrador.';return;}
+    if(r.status==='nopass'){msg.className='msg err';msg.textContent='Ainda não definiste a palavra-passe de administrador no Supabase.';return;}
+    if(r.status==='badpass'){admPass='';$('admLogin').hidden=false;$('admData').hidden=true;msg.className='msg err';msg.textContent='Palavra-passe errada.';return;}
+    admRows=r.rows||[];$('admLogin').hidden=true;$('admData').hidden=false;msg.textContent='Atualizado às '+new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});admRender();}
+  catch(e){msg.className='msg err';msg.textContent='Sem ligação à internet.';}}
+$('admBtn').onclick=()=>{$('adm').hidden=false;$('admMsg').textContent='';if(admPass)admLoad();else{$('admLogin').hidden=false;$('admData').hidden=true;$('admPass').value='';}};
+$('admGo').onclick=()=>{admPass=$('admPass').value;$('admPass').value='';admLoad();};
+$('admPass').addEventListener('keydown',e=>{if(e.key==='Enter')$('admGo').click();});
+$('admReload').onclick=admLoad;$('admClose').onclick=()=>{$('adm').hidden=true;};
+document.querySelectorAll('#admTabs button').forEach(x=>x.onclick=()=>{admFilter=x.dataset.f;admRender();});
 /* ---------- Torneio Bandhu Oficial: inscrições, modo próprio e classificação própria ---------- */
 const REG_OPEN=Date.parse('2026-10-21T00:00:00+01:00'),TOUR_START=Date.parse('2026-10-22T00:00:00+01:00'),TOUR_END=Date.parse('2026-10-24T00:00:00+01:00'),TOUR_HIDE=Date.parse('2026-10-27T00:00:00+00:00');
 let tourShown=false,tourTimer=0,TS={registered:false,checked:false};
@@ -1197,7 +1257,7 @@ $('aGo').onclick=async()=>{const msg=$('aMsg'),go=$('aGo'),name=cleanName($('aNa
       if(r.status==='nopin')return err('Esta conta ainda não tem código. Abre o jogo no telemóvel onde a criaste: vai pedir-te para definires um código.');
       if(r.status==='badpin')return err('Código errado. Tenta outra vez.');
       if(r.status!=='ok')return err('Não foi possível entrar. Tenta outra vez.');
-      P.token=r.token;P.nick=r.name;P.hasPin=true;if(r.profile)applyProfile(r.profile);LS.set('bandhu_p',P);if(!r.profile)cloudSave();
+      P.token=r.token;P.nick=r.name;P.hasPin=true;setTimeout(adminCheck,300);if(r.profile)applyProfile(r.profile);LS.set('bandhu_p',P);if(!r.profile)cloudSave();
       go.disabled=false;refreshAcctBtn();refreshMenu();setAcctMode('info');msg.textContent='Bem-vindo de volta, '+r.name+'!';}
     else{const r=await api('rpc/bandhu_set_pin',{method:'POST',body:JSON.stringify({p_name:name,p_token:P.token,p_pin:pin})});
       if(r==='taken')return err('O nome "'+name+'" já é de outro jogador. Se é teu, escolhe "Já tenho conta".');
@@ -1786,7 +1846,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;tickMusic(dt)
   render();
   requestAnimationFrame(loop);}
 resize();newGame();G.dist=rnd(0,BIOME_LEN*4);G.nextDecor=G.dist;G.objs=[];for(let w=G.dist;w<G.dist+FAR;w+=rnd(2.2,4.5))spawnDecor(w);G.nextDecor=G.dist+FAR;G.biomeI=G.prevBiome=biomeIdx(G.dist);
-refreshMenu();refreshInstallBtn();refreshAcctBtn();cloudLoad();tourStatus();if(rankOn()&&!P.nick)openAcct('choose');else if(rankOn()&&!P.hasPin)openAcct('protect');else setTimeout(()=>{if(!tourShown&&state==='menu')openTourney();},600);requestAnimationFrame(loop);
+refreshMenu();refreshInstallBtn();refreshAcctBtn();cloudLoad();tourStatus();adminCheck();if(rankOn()&&!P.nick)openAcct('choose');else if(rankOn()&&!P.hasPin)openAcct('protect');else setTimeout(()=>{if(!tourShown&&state==='menu')openTourney();},600);requestAnimationFrame(loop);
 })();
 </script>
 
