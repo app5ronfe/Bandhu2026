@@ -246,6 +246,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
 .live i{width:9px;height:9px;border-radius:50%;background:#d6452f;animation:livepulse 1.4s infinite}
 @keyframes livepulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
 .rankcount{display:inline-block;margin:0 auto 10px;background:var(--gold);border:3px solid var(--ink);border-radius:999px;padding:4px 14px;font:800 16px/1.2 var(--ui);box-shadow:0 3px 0 var(--ink)}
+.rtabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;background:var(--ink);border:3px solid var(--ink);border-radius:14px;padding:4px;box-sizing:border-box;margin:0 0 10px}
+.rtabs button{font:800 15px var(--ui);border:0;border-radius:10px;padding:8px 6px;background:transparent;color:var(--cream);cursor:pointer}
+.rtabs button.on{background:var(--gold);color:var(--ink)}
 .rankslogan{font:400 20px/1.15 var(--display);margin:0 0 8px;text-wrap:balance}
 .board{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;width:100%}
 .board li{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:10px;background:var(--cream);border:3px solid var(--ink);border-radius:14px;padding:8px 12px;font:700 17px var(--ui);text-align:left}
@@ -327,6 +330,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var
     <button class="btn small" id="rankReload">Atualizar</button>
   </div>
   <div class="inner">
+    <div class="rtabs" id="rankTabs" hidden><button id="rtGeral" class="on">Geral</button><button id="rtTour">🏆 Torneio</button></div>
     <p class="rankslogan" id="rankSlogan">Consegues tu manter o recorde de todos?</p>
     <p class="live" id="rankLive" hidden><i></i>Ao vivo · <span id="rankWhen"></span></p>
     <p class="rankcount" id="rankCount" hidden></p>
@@ -1253,11 +1257,11 @@ async function loadRank(quiet){if(rankBusy)return;rankBusy=true;const empty=$('r
   catch(e){if(!quiet){$('podium').hidden=true;$('myPos').hidden=true;$('board').innerHTML='';empty.hidden=false;empty.textContent='Não foi possível carregar o ranking. Verifica a internet e tenta outra vez.';}}
   finally{rankBusy=false;}}
 function stopRankPoll(){clearInterval(rankTimer);rankTimer=0;}
-async function openRank(mode){rankMode=mode==='tour'?'tour':'geral';$('rankTitle').textContent=rankMode==='tour'?'Torneio':'Ranking';$('rankSlogan').textContent=rankMode==='tour'?'Torneio Bandhu Oficial · o 1.º ganha um prémio!':'Consegues tu manter o recorde de todos?';state='rank';show('rank');$('board').innerHTML='';$('podium').hidden=true;$('myPos').hidden=true;$('rankLive').hidden=true;$('rankCount').hidden=true;
+async function openRank(mode){rankMode=mode==='tour'?'tour':'geral';{const ph=tourPhase();$('rankTabs').hidden=!(ph==='reg'||ph==='live'||ph==='results');$('rtGeral').classList.toggle('on',rankMode==='geral');$('rtTour').classList.toggle('on',rankMode==='tour');}$('rankTitle').textContent=rankMode==='tour'?'Torneio':'Ranking';$('rankSlogan').textContent=rankMode==='tour'?'Torneio Bandhu Oficial · o 1.º ganha um prémio!':'Consegues tu manter o recorde de todos?';state='rank';show('rank');$('board').innerHTML='';$('podium').hidden=true;$('myPos').hidden=true;$('rankLive').hidden=true;$('rankCount').hidden=true;
   if(!rankOn()){$('rankEmpty').hidden=false;$('rankEmpty').textContent='O ranking fica ativo na versão online do jogo.';return;}
   await loadRank(false);stopRankPoll();rankTimer=setInterval(()=>{if(state!=='rank'||document.hidden){if(state!=='rank')stopRankPoll();return;}loadRank(true);},8000);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state==='rank')loadRank(true);});
-$('rankBtn').onclick=()=>openRank('geral');$('rankReload').onclick=()=>loadRank(false);$('rankBack').onclick=()=>{stopRankPoll();toMenu();};
+$('rankBtn').onclick=()=>openRank(['live','results'].includes(tourPhase())?'tour':'geral');$('rtGeral').onclick=()=>{if(rankMode!=='geral')openRank('geral');};$('rtTour').onclick=()=>{if(rankMode!=='tour')openRank('tour');};$('rankReload').onclick=()=>loadRank(false);$('rankBack').onclick=()=>{stopRankPoll();toMenu();};
 $('nick').addEventListener('keydown',e=>{if(e.key==='Enter')$('saveScore').click();});
 
 /* ---------- loja ---------- */
